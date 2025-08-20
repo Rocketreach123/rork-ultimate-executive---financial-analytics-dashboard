@@ -1,0 +1,36 @@
+import { OrderData } from '@/types/finance';
+
+export const mockOrderData: OrderData[] = [
+  // All-County Apparel orders from Excel
+  { orderId: '19806693', invoiceDate: '2025-09-09', company: 'All-County Apparel (Online Stores)', visualId: '699574', category: 'Custom Screen Print', lineItemId: '85449402', qty: 1, unitPrice: 0, totalPrice: 0, orderStatus: 'Completed (Fulfilled and Paid)', customerType: 'Online Stores' },
+  { orderId: '19806693', invoiceDate: '2025-09-09', company: 'All-County Apparel (Online Stores)', visualId: '699574', category: 'Custom Screen Print', lineItemId: '85449404', qty: 5, unitPrice: 0, totalPrice: 0, orderStatus: 'Completed (Fulfilled and Paid)', customerType: 'Online Stores' },
+  { orderId: '19806693', invoiceDate: '2025-09-09', company: 'All-County Apparel (Online Stores)', visualId: '699574', category: 'Custom Screen Print', lineItemId: '85449405', qty: 3, unitPrice: 0, totalPrice: 0, orderStatus: 'Completed (Fulfilled and Paid)', customerType: 'Online Stores' },
+  { orderId: '19806693', invoiceDate: '2025-09-09', company: 'All-County Apparel (Online Stores)', visualId: '699574', category: 'Custom Screen Print', lineItemId: '85449406', qty: 7, unitPrice: 0, totalPrice: 0, orderStatus: 'Completed (Fulfilled and Paid)', customerType: 'Online Stores' },
+  { orderId: '19806693', invoiceDate: '2025-09-09', company: 'All-County Apparel (Online Stores)', visualId: '699574', category: 'Hybrid Decoration', lineItemId: '85449407', qty: 10, unitPrice: 0, totalPrice: 0, orderStatus: 'Completed (Fulfilled and Paid)', customerType: 'Online Stores' },
+  
+  // Township of Wayne orders
+  { orderId: '19634123', invoiceDate: '2025-04-09', company: 'Township of Wayne', visualId: '699065', category: 'Embroidery', lineItemId: '84668644', qty: 3, unitPrice: 0, totalPrice: 0, orderStatus: 'Completed (Fulfilled and Paid)', customerType: 'Direct' },
+  { orderId: '19634123', invoiceDate: '2025-04-09', company: 'Township of Wayne', visualId: '699065', category: 'Embroidery', lineItemId: '84668645', qty: 2, unitPrice: 0, totalPrice: 0, orderStatus: 'Completed (Fulfilled and Paid)', customerType: 'Direct' },
+  { orderId: '19634123', invoiceDate: '2025-04-09', company: 'Township of Wayne', visualId: '699065', category: 'Embroidery', lineItemId: '84668646', qty: 2, unitPrice: 0, totalPrice: 0, orderStatus: 'Completed (Fulfilled and Paid)', customerType: 'Direct' },
+  { orderId: '19634123', invoiceDate: '2025-04-09', company: 'Township of Wayne', visualId: '699065', category: 'Embroidery', lineItemId: '84668647', qty: 3, unitPrice: 0, totalPrice: 0, orderStatus: 'Completed (Fulfilled and Paid)', customerType: 'Direct' },
+  { orderId: '19634123', invoiceDate: '2025-04-09', company: 'Township of Wayne', visualId: '699065', category: 'Embroidery', lineItemId: '84668648', qty: 4, unitPrice: 0, totalPrice: 0, orderStatus: 'Completed (Fulfilled and Paid)', customerType: 'Direct' },
+
+  // Generate more realistic data based on the summary
+  { orderId: '20240101', invoiceDate: '2024-01-15', company: 'Enterprise Corp', visualId: '700001', category: 'Custom Screen Print', lineItemId: '90000001', qty: 100, unitPrice: 25.50, totalPrice: 2550.00, orderStatus: 'Completed (Fulfilled and Paid)', customerType: 'Enterprise' },
+  { orderId: '20240102', invoiceDate: '2024-01-20', company: 'Contract Solutions Inc', visualId: '700002', category: 'Embroidery', lineItemId: '90000002', qty: 50, unitPrice: 35.00, totalPrice: 1750.00, orderStatus: 'Completed (Fulfilled and Paid)', customerType: 'Contract' },
+  { orderId: '20240103', invoiceDate: '2024-02-05', company: 'Direct Buyer LLC', visualId: '700003', category: 'DTG', lineItemId: '90000003', qty: 25, unitPrice: 18.00, totalPrice: 450.00, orderStatus: 'In Production', customerType: 'Direct' },
+  { orderId: '20240104', invoiceDate: '2024-02-10', company: 'Bid Winner Co', visualId: '700004', category: 'Custom Screen Print', lineItemId: '90000004', qty: 200, unitPrice: 22.00, totalPrice: 4400.00, orderStatus: 'Completed (Fulfilled and Paid)', customerType: 'Bid' },
+  { orderId: '20240105', invoiceDate: '2024-03-01', company: 'Enterprise Corp', visualId: '700005', category: 'Hybrid Decoration', lineItemId: '90000005', qty: 150, unitPrice: 45.00, totalPrice: 6750.00, orderStatus: 'Completed (Fulfilled and Paid)', customerType: 'Enterprise' },
+  { orderId: '20240106', invoiceDate: '2024-03-15', company: 'Online Store Customer', visualId: '700006', category: 'Custom Screen Print', lineItemId: '90000006', qty: 10, unitPrice: 30.00, totalPrice: 300.00, orderStatus: 'Shipped', customerType: 'Online Stores' },
+  { orderId: '20240107', invoiceDate: '2024-04-01', company: 'Contract Solutions Inc', visualId: '700007', category: 'Embroidery', lineItemId: '90000007', qty: 75, unitPrice: 38.00, totalPrice: 2850.00, orderStatus: 'Completed (Fulfilled and Paid)', customerType: 'Contract' },
+  { orderId: '20240108', invoiceDate: '2024-04-10', company: 'Direct Buyer LLC', visualId: '700008', category: 'Custom Screen Print', lineItemId: '90000008', qty: 40, unitPrice: 24.00, totalPrice: 960.00, orderStatus: 'Completed (Fulfilled and Paid)', customerType: 'Direct' },
+  { orderId: '20240109', invoiceDate: '2024-05-01', company: 'Enterprise Corp', visualId: '700009', category: 'DTG', lineItemId: '90000009', qty: 60, unitPrice: 20.00, totalPrice: 1200.00, orderStatus: 'Completed (Fulfilled and Paid)', customerType: 'Enterprise' },
+  { orderId: '20240110', invoiceDate: '2024-05-15', company: 'Bid Winner Co', visualId: '700010', category: 'Embroidery', lineItemId: '90000010', qty: 120, unitPrice: 32.00, totalPrice: 3840.00, orderStatus: 'In Production', customerType: 'Bid' },
+  
+  // Recent 2025 orders
+  { orderId: '20250101', invoiceDate: '2025-01-05', company: 'Enterprise Corp', visualId: '700011', category: 'Custom Screen Print', lineItemId: '90000011', qty: 250, unitPrice: 28.00, totalPrice: 7000.00, orderStatus: 'Completed (Fulfilled and Paid)', customerType: 'Enterprise' },
+  { orderId: '20250102', invoiceDate: '2025-01-10', company: 'Contract Solutions Inc', visualId: '700012', category: 'Hybrid Decoration', lineItemId: '90000012', qty: 180, unitPrice: 42.00, totalPrice: 7560.00, orderStatus: 'Completed (Fulfilled and Paid)', customerType: 'Contract' },
+  { orderId: '20250103', invoiceDate: '2025-01-15', company: 'Direct Buyer LLC', visualId: '700013', category: 'Embroidery', lineItemId: '90000013', qty: 90, unitPrice: 36.00, totalPrice: 3240.00, orderStatus: 'Shipped', customerType: 'Direct' },
+  { orderId: '20250104', invoiceDate: '2025-01-20', company: 'Enterprise Corp', visualId: '700014', category: 'Custom Screen Print', lineItemId: '90000014', qty: 300, unitPrice: 26.50, totalPrice: 7950.00, orderStatus: 'Completed (Fulfilled and Paid)', customerType: 'Enterprise' },
+  { orderId: '20250105', invoiceDate: '2025-01-25', company: 'Online Store Customer', visualId: '700015', category: 'DTG', lineItemId: '90000015', qty: 15, unitPrice: 35.00, totalPrice: 525.00, orderStatus: 'Completed (Fulfilled and Paid)', customerType: 'Online Stores' },
+];
