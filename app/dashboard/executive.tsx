@@ -4,14 +4,14 @@ import { useFilters } from '@/providers/FiltersProvider';
 import GlobalFilterBar from '@/components/global/GlobalFilterBar';
 import { spacing } from '@/constants/theme';
 import { useTheme } from '@/providers/ThemeProvider';
+import PulseKpiStrip from '@/components/widgets/PulseKpiStrip';
 
 export default function ExecutivePage() {
   const { filters, set } = useFilters();
   const { colors } = useTheme();
 
   return (
-    <View style={[styles.screen, { backgroundColor: colors.bg }]}
-      testID="executive-screen">
+    <View style={[styles.screen, { backgroundColor: colors.bg }]} testID="executive-screen">
       <View style={[styles.header, { borderBottomColor: colors.border, backgroundColor: colors.surface }]}>
         <Text style={[styles.title, { color: colors.text }]}>Executive Dashboard</Text>
       </View>
@@ -19,9 +19,14 @@ export default function ExecutivePage() {
         <Text style={[styles.subnavText, { color: colors.subtle }]}>Pulse • Trend • Top • Cold • Heatmaps • Status</Text>
       </View>
       <GlobalFilterBar value={filters} onChange={set} />
+
       <ScrollView contentContainerStyle={styles.body}>
+        <View style={styles.row}>
+          <PulseKpiStrip filters={filters} />
+        </View>
+
         <View style={[styles.placeholder, { borderColor: colors.border, backgroundColor: colors.card }]}>
-          <Text style={{ color: colors.text }}>Mock widgets go here. Wire to /api endpoints with sample JSON.</Text>
+          <Text style={{ color: colors.text }}>More mock widgets will render here: Trend, Top, Cold, Heatmaps, Status.</Text>
         </View>
       </ScrollView>
     </View>
@@ -34,6 +39,7 @@ const styles = StyleSheet.create({
   title: { fontSize: 20, fontWeight: '700' },
   subnav: { paddingHorizontal: spacing.gutter, paddingVertical: 8, borderBottomWidth: 1 },
   subnavText: { fontSize: 12 },
-  body: { padding: spacing.gutter },
+  body: { padding: spacing.gutter, gap: 24 },
+  row: { },
   placeholder: { borderWidth: 1, borderRadius: 16, padding: 24 },
 });
