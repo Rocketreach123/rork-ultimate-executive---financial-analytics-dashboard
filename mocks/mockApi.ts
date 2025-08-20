@@ -58,6 +58,19 @@ export async function mockFinanceGet(path: string): Promise<unknown> {
     } as const;
   }
 
+  if (path.startsWith('/api/finance/heatmap/process')) {
+    return {
+      rows: ['Urban Threads', 'Gym Club', 'Enterprise Corp'],
+      cols: ['Screen Print', 'Embroidery', 'DTF', 'Heat Press'],
+      values: [
+        [32110, 18110, 0, 2110],
+        [12110, 9100, 600, 1200],
+        [22110, 14110, 900, 800],
+      ],
+      mode: 'absolute',
+    } as const;
+  }
+
   if (path.startsWith('/api/finance/revenue/status')) {
     return [
       { period: '2025-08', order_status: 'Completed', revenue: 142110.5 },
