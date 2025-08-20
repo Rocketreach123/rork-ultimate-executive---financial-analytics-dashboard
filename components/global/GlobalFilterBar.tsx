@@ -1,8 +1,9 @@
-import React, { useMemo, useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Platform } from 'react-native';
-import { colors, spacing } from '@/constants/theme';
+import React, { useMemo } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { spacing } from '@/constants/theme';
 import { FiltersPayload } from '@/types/finance';
-import { Calendar, ChevronDown, Filter, RefreshCcw } from 'lucide-react-native';
+import { Calendar, RefreshCcw, Sun, Moon } from 'lucide-react-native';
+import { useTheme } from '@/providers/ThemeProvider';
 
 interface Props {
   value: FiltersPayload;
@@ -10,6 +11,8 @@ interface Props {
 }
 
 export default function GlobalFilterBar({ value, onChange }: Props) {
+  const { colors, mode, toggle } = useTheme();
+
   const presets = useMemo(
     () => [
       { label: 'Today', calc: () => { const now = new Date(); const d = now.toISOString().slice(0,10); return { from: d, to: d }; } },
@@ -27,32 +30,34 @@ export default function GlobalFilterBar({ value, onChange }: Props) {
   const toggleCompare = () => onChange({ ...value, compare: !value.compare });
 
   return (
-    <View style={styles.wrap} testID="global-filter-bar">
+    <View style={[styles.wrap, { backgroundColor: colors.surface, borderColor: colors.border }]} testID="global-filter-bar">
       <View style={styles.row}>
         <View style={styles.presetRow}>
           {presets.map((p, idx) => (
-            <TouchableOpacity key={p.label} onPress={() => applyPreset(idx)} style={styles.pill} testID={`preset-${p.label}`}>
+            <TouchableOpacity key={p.label} onPress={() => applyPreset(idx)} style={[styles.pill, { backgroundColor: colors.card, borderColor: colors.border }]} testID={`preset-${p.label}`}>
               <Calendar size={14} color={colors.subtle} />
-              <Text style={styles.pillText}>{p.label}</Text>
+              <Text style={[styles.pillText, { color: colors.subtle }]}>{p.label}</Text>
             </TouchableOpacity>
           ))}
         </View>
         <View style={styles.rightRow}>
-          <TouchableOpacity onPress={toggleCompare} style={[styles.pill, value.compare ? styles.pillActive : undefined]} testID="toggle-compare">
+          <TouchableOpacity onPress={toggle} style={[styles.pill, { backgroundColor: colors.card, borderColor: colors.border }]} testID="toggle-theme">
+            {mode === 'dark' ? <Sun size={14} color={colors.subtle} /> : <Moon size={14} color={colors.subtle} />}
+            <Text style={[styles.pillText, { color: colors.subtle }]}>{mode === 'dark' ? 'Light' : 'Dark'}</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={toggleCompare} style={[styles.pill, value.compare ? [styles.pillActive, { backgroundColor: colors.primary, borderColor: colors.primary }] : { backgroundColor: colors.card, borderColor: colors.border }]} testID="toggle-compare">
             <RefreshCcw size={14} color={value.compare ? colors.bg : colors.subtle} />
-            <Text style={[styles.pillText, value.compare ? styles.pillTextActive : undefined]}>Compare</Text>
+            <Text style={[styles.pillText, value.compare ? { color: colors.bg } : { color: colors.subtle }]}>Compare</Text>
           </TouchableOpacity>
         </View>
       </View>
-      <Text style={styles.rangeText} numberOfLines={1} testID="current-range">{value.from} — {value.to}</Text>
+      <Text style={[styles.rangeText, { color: colors.subtle }]} numberOfLines={1} testID="current-range">{value.from} — {value.to}</Text>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   wrap: {
-    backgroundColor: colors.surface,
-    borderColor: colors.border,
     borderWidth: 1,
     paddingHorizontal: spacing.gutter,
     paddingVertical: 12,
@@ -63,11 +68,10 @@ const styles = StyleSheet.create({
   pill: {
     flexDirection: 'row', alignItems: 'center', gap: 6,
     paddingHorizontal: 10, paddingVertical: 8,
-    borderWidth: 1, borderColor: colors.border, borderRadius: 999,
-    backgroundColor: colors.card,
+    borderWidth: 1, borderRadius: 999,
   },
-  pillActive: { backgroundColor: colors.primary, borderColor: colors.primary },
-  pillText: { color: colors.subtle, fontSize: 12 },
-  pillTextActive: { color: colors.bg },
-  rangeText: { color: colors.subtle, fontSize: 12, marginTop: 8 },
+  pillActive: {},
+  pillText: { fontSize: 12 },
+  pillTextActive: {},
+  rangeText: { fontSize: 12, marginTop: 8 },
 });
