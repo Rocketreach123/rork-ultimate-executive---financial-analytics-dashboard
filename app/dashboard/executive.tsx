@@ -13,6 +13,7 @@ interface HighValueRow { order_id: string; order_date: string; company: string; 
 interface TopRow { company: string; revenue: number; orders: number; units: number; aov: number }
 interface ColdRow { company: string; last_order_date: string; last_order_value: number; avg_orders_per_month: number; customer_type: string }
 interface StatusRow { period: string; order_status: string; revenue: number }
+import HeaderNav from '@/components/global/HeaderNav';
 
 export default function ExecutivePage() {
   const { filters, set } = useFilters();
@@ -47,12 +48,7 @@ export default function ExecutivePage() {
 
   return (
     <View style={[styles.screen, { backgroundColor: colors.bg }]} testID="executive-screen">
-      <View style={[styles.header, { borderBottomColor: colors.border, backgroundColor: colors.surface }]}>
-        <Text style={[styles.title, { color: colors.text }]}>Executive Dashboard</Text>
-      </View>
-      <View style={[styles.subnav, { borderBottomColor: colors.border, backgroundColor: colors.surface }]}>
-        <Text style={[styles.subnavText, { color: colors.subtle }]}>Pulse • Trend • Top • Cold • Heatmaps • Status</Text>
-      </View>
+      <HeaderNav title="Executive Dashboard" />
       <GlobalFilterBar value={filters} onChange={set} />
 
       <ScrollView contentContainerStyle={styles.body}>
@@ -158,10 +154,7 @@ export default function ExecutivePage() {
 
 const styles = StyleSheet.create({
   screen: { flex: 1 },
-  header: { height: 56, flexDirection: 'row', alignItems: 'center', paddingHorizontal: spacing.gutter, borderBottomWidth: 1 },
-  title: { fontSize: 20, fontWeight: '700' },
-  subnav: { paddingHorizontal: spacing.gutter, paddingVertical: 8, borderBottomWidth: 1 },
-  subnavText: { fontSize: 12 },
+
   body: { padding: spacing.gutter, gap: 24 },
   row: { },
   card: { padding: 16, borderWidth: 1, borderRadius: 16 },

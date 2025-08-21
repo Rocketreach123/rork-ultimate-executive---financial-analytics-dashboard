@@ -58,6 +58,9 @@ export default function GlobalFilterBar({ value, onChange }: Props) {
 
 const styles = StyleSheet.create({
   wrap: {
+    position: 'sticky' as any,
+    top: 0,
+    zIndex: 10,
     borderWidth: 1,
     paddingHorizontal: spacing.gutter,
     paddingVertical: 12,

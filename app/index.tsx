@@ -6,6 +6,7 @@ import GlobalFilterBar from '@/components/global/GlobalFilterBar';
 import { useFilters } from '@/providers/FiltersProvider';
 import { BarChart3, DollarSign, Users, TrendingUp, ChevronRight } from 'lucide-react-native';
 import { useTheme } from '@/providers/ThemeProvider';
+import HeaderNav from '@/components/global/HeaderNav';
 
 export default function Home() {
   const { filters, set } = useFilters();
@@ -21,19 +22,7 @@ export default function Home() {
 
   return (
     <View style={[styles.screen, { backgroundColor: colors.bg }]} testID="home-screen">
-      <View style={[styles.header, { borderBottomColor: colors.border, backgroundColor: colors.surface }]}>
-        <Text style={[styles.title, { color: colors.text }]}>Analytics</Text>
-        <View style={styles.headerRight}><Text style={[styles.headerHint, { color: colors.subtle }]}>Demo</Text></View>
-      </View>
-
-      <View style={[styles.subnav, { borderBottomColor: colors.border, backgroundColor: colors.surface }]}>
-        {nav.map((n) => (
-          <TouchableOpacity key={n.href} style={[styles.subnavItem, { backgroundColor: colors.card, borderColor: colors.border }]} onPress={() => router.push(n.href as any)} testID={`nav-${n.label}`}>
-            <n.icon size={16} color={colors.text} />
-            <Text style={[styles.subnavText, { color: colors.text }]}>{n.label}</Text>
-          </TouchableOpacity>
-        ))}
-      </View>
+      <HeaderNav title="Analytics" />
 
       <GlobalFilterBar value={filters} onChange={set} />
 
@@ -59,13 +48,7 @@ export default function Home() {
 
 const styles = StyleSheet.create({
   screen: { flex: 1 },
-  header: { height: 56, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: spacing.gutter, borderBottomWidth: 1 },
-  title: { fontSize: 20, fontWeight: '700' },
-  headerRight: { flexDirection: 'row', alignItems: 'center', gap: 12 },
-  headerHint: { fontSize: 12 },
-  subnav: { flexDirection: 'row', paddingHorizontal: spacing.gutter, gap: 12, paddingVertical: 8, borderBottomWidth: 1 },
-  subnavItem: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 8, paddingHorizontal: 12, borderRadius: 999, borderWidth: 1 },
-  subnavText: { fontSize: 12 },
+
   body: { padding: spacing.gutter },
   grid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.gutter },
   card: { width: '100%', borderWidth: 1, borderRadius: 16, padding: 16 },

@@ -10,6 +10,7 @@ import { spacing } from '@/constants/theme';
 interface TrendPoint { date: string; revenue: number; orders: number; units: number }
 interface ScatterPoint { date: string; orders: number; revenue: number }
 interface CategorySeries { name: string; data: number[] }
+import HeaderNav from '@/components/global/HeaderNav';
 
 export default function TrendsPage() {
   const { colors } = useTheme();
@@ -64,12 +65,7 @@ export default function TrendsPage() {
 
   return (
     <View style={[styles.screen, { backgroundColor: colors.bg }]} testID="trends-screen">
-      <View style={[styles.header, { borderBottomColor: colors.border, backgroundColor: colors.surface }]}>
-        <Text style={[styles.title, { color: colors.text }]}>Trends</Text>
-      </View>
-      <View style={[styles.subnav, { borderBottomColor: colors.border, backgroundColor: colors.surface }]}>
-        <Text style={[styles.subnavText, { color: colors.subtle }]}>Bucket • Compare • 7-day MA • Category • Scatter • Monthly</Text>
-      </View>
+      <HeaderNav title="Trends" />
       <GlobalFilterBar value={filters} onChange={set} />
 
       <ScrollView contentContainerStyle={styles.body}>
@@ -181,10 +177,7 @@ const STK_COLORS = ['#22D3EE','#34D399','#FBBF24','#A78BFA'] as const;
 
 const styles = StyleSheet.create({
   screen: { flex: 1 },
-  header: { height: 56, flexDirection: 'row', alignItems: 'center', paddingHorizontal: spacing.gutter, borderBottomWidth: 1 },
-  title: { fontSize: 20, fontWeight: '700' },
-  subnav: { paddingHorizontal: spacing.gutter, paddingVertical: 8, borderBottomWidth: 1 },
-  subnavText: { fontSize: 12 },
+
   body: { padding: spacing.gutter, gap: 16 },
   card: { padding: 16, borderWidth: 1, borderRadius: 16 },
   rowHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 },

@@ -9,6 +9,7 @@ import { FiltersPayload } from '@/types/finance';
 import { mockFinanceGet } from '@/mocks/mockApi';
 
 interface TrendPoint { date: string; revenue: number; orders: number; units: number }
+import HeaderNav from '@/components/global/HeaderNav';
 
 export default function FinancialPage() {
   const { colors } = useTheme();
@@ -39,12 +40,7 @@ export default function FinancialPage() {
 
   return (
     <View style={[styles.screen, { backgroundColor: colors.bg }]} testID="financial-screen">
-      <View style={[styles.header, { borderBottomColor: colors.border, backgroundColor: colors.surface }]}>
-        <Text style={[styles.title, { color: colors.text }]}>Financial Analytics</Text>
-      </View>
-      <View style={[styles.subnav, { borderBottomColor: colors.border, backgroundColor: colors.surface }]}>
-        <Text style={[styles.subnavText, { color: colors.subtle }]}>KPIs • Trend • Status • Top Customers • Process Mix</Text>
-      </View>
+      <HeaderNav title="Financial Analytics" />
       <GlobalFilterBar value={filters} onChange={set} />
 
       <ScrollView contentContainerStyle={styles.body}>
@@ -119,10 +115,7 @@ export default function FinancialPage() {
 
 const styles = StyleSheet.create({
   screen: { flex: 1 },
-  header: { height: 56, flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, borderBottomWidth: 1 },
-  title: { fontSize: 20, fontWeight: '700' },
-  subnav: { paddingHorizontal: 16, paddingVertical: 8, borderBottomWidth: 1 },
-  subnavText: { fontSize: 12 },
+
   body: { padding: 16, gap: 16 },
   card: { padding: 16, borderWidth: 1, borderRadius: 16 },
   rowHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 },

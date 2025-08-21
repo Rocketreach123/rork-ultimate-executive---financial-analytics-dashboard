@@ -8,6 +8,7 @@ import { spacing } from '@/constants/theme';
 import { mockFinanceGet } from '@/mocks/mockApi';
 
 interface TopRow { company: string; revenue: number; orders: number; units: number; aov: number }
+import HeaderNav from '@/components/global/HeaderNav';
 
 export default function CustomersPage() {
   const { colors } = useTheme();
@@ -33,12 +34,7 @@ export default function CustomersPage() {
 
   return (
     <View style={[styles.screen, { backgroundColor: colors.bg }]} testID="customers-screen">
-      <View style={[styles.header, { borderBottomColor: colors.border, backgroundColor: colors.surface }]}>
-        <Text style={[styles.title, { color: colors.text }]}>Customers</Text>
-      </View>
-      <View style={[styles.subnav, { borderBottomColor: colors.border, backgroundColor: colors.surface }]}>
-        <Text style={[styles.subnavText, { color: colors.subtle }]}>Master list • Search • Drilldown</Text>
-      </View>
+      <HeaderNav title="Customers" />
       <GlobalFilterBar value={filters} onChange={set} />
 
       <ScrollView contentContainerStyle={styles.body}>
@@ -72,10 +68,7 @@ export default function CustomersPage() {
 
 const styles = StyleSheet.create({
   screen: { flex: 1 },
-  header: { height: 56, flexDirection: 'row', alignItems: 'center', paddingHorizontal: spacing.gutter, borderBottomWidth: 1 },
-  title: { fontSize: 20, fontWeight: '700' },
-  subnav: { paddingHorizontal: spacing.gutter, paddingVertical: 8, borderBottomWidth: 1 },
-  subnavText: { fontSize: 12 },
+
   body: { padding: spacing.gutter, gap: 16 },
   card: { padding: 16, borderWidth: 1, borderRadius: 16 },
   search: { borderWidth: 1, paddingVertical: 8, paddingHorizontal: 10, borderRadius: 8, marginBottom: 8 },
