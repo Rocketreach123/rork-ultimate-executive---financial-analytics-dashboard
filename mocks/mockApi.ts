@@ -1,7 +1,30 @@
 import { FiltersPayload } from '@/types/finance';
 
 export async function mockFinanceGet(path: string): Promise<unknown> {
-  await new Promise(r => setTimeout(r, 300));
+  await new Promise(r => setTimeout(r, 200));
+
+  if (path.startsWith('/api/finance/pulse/trend/category')) {
+    return {
+      bucket: 'month',
+      periods: ['2025-06','2025-07','2025-08','2025-09'],
+      series: [
+        { name: 'Screen Print', data: [32110, 28110, 35110, 37210] },
+        { name: 'Embroidery', data: [14110, 12210, 18110, 16010] },
+        { name: 'DTF', data: [2210, 1800, 3100, 2900] },
+        { name: 'Heat Press', data: [1210, 900, 1500, 1300] },
+      ],
+    } as const;
+  }
+
+  if (path.startsWith('/api/finance/pulse/trend/scatter')) {
+    return [
+      { date: '2025-08-10', orders: 9, revenue: 15432.11 },
+      { date: '2025-08-11', orders: 12, revenue: 18754.90 },
+      { date: '2025-08-12', orders: 10, revenue: 17120.50 },
+      { date: '2025-08-13', orders: 14, revenue: 20120.10 },
+      { date: '2025-08-14', orders: 8, revenue: 13210.00 },
+    ] as const;
+  }
 
   if (path.startsWith('/api/finance/pulse')) {
     return {
@@ -22,12 +45,38 @@ export async function mockFinanceGet(path: string): Promise<unknown> {
   }
 
   if (path.startsWith('/api/finance/pulse/trend')) {
+    const query = new URLSearchParams(path.split('?')[1] ?? '');
+    const bucket = (query.get('bucket') as 'day'|'week'|'month') ?? 'day';
+    if (bucket === 'month') {
+      return {
+        bucket: 'month',
+        series: [
+          { date: '2025-06', revenue: 110432.11, orders: 58, units: 3120 },
+          { date: '2025-07', revenue: 124754.90, orders: 64, units: 3510 },
+          { date: '2025-08', revenue: 131120.50, orders: 70, units: 3720 },
+          { date: '2025-09', revenue: 141980.30, orders: 73, units: 3900 },
+        ],
+      } as const;
+    }
+    if (bucket === 'week') {
+      return {
+        bucket: 'week',
+        series: [
+          { date: '2025-W31', revenue: 75432.11, orders: 39, units: 1960 },
+          { date: '2025-W32', revenue: 88754.90, orders: 42, units: 2190 },
+          { date: '2025-W33', revenue: 77120.50, orders: 40, units: 2040 },
+          { date: '2025-W34', revenue: 90120.30, orders: 45, units: 2260 },
+        ],
+      } as const;
+    }
     return {
       bucket: 'day',
       series: [
         { date: '2025-08-10', revenue: 15432.11, orders: 9, units: 460 },
         { date: '2025-08-11', revenue: 18754.90, orders: 12, units: 590 },
         { date: '2025-08-12', revenue: 17120.50, orders: 10, units: 540 },
+        { date: '2025-08-13', revenue: 20120.10, orders: 14, units: 620 },
+        { date: '2025-08-14', revenue: 13210.00, orders: 8, units: 420 },
       ],
     } as const;
   }
