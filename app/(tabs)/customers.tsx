@@ -3,12 +3,13 @@ import { ScrollView, View, Text, StyleSheet, RefreshControl, TouchableOpacity, M
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFinanceData } from '@/hooks/useFinanceData';
 import { CustomerTable } from '@/components/CustomerTable';
+import PivotGrid from '@/components/PivotGrid';
 import { DateRangePicker } from '@/components/DateRangePicker';
 import { X, TrendingUp, Package, Calendar } from 'lucide-react-native';
 import { CustomerMetrics } from '@/types/finance';
 
 export default function CustomersScreen() {
-  const { customerMetrics, filters, updateFilters } = useFinanceData();
+  const { customerMetrics, filters, updateFilters, data } = useFinanceData();
   const [refreshing, setRefreshing] = React.useState(false);
   const [selectedCustomer, setSelectedCustomer] = useState<CustomerMetrics | null>(null);
 
@@ -74,6 +75,18 @@ export default function CustomersScreen() {
             <Text style={[styles.statValue, { color: '#f59e0b' }]}>{coldCustomers.length}</Text>
             <Text style={styles.statLabel}>Cold Customers</Text>
           </View>
+        </View>
+
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle} testID="pivot-title">Customer Pivot</Text>
+          <PivotGrid
+            data={data}
+            initialMeasure="revenue"
+            rowField="company"
+            bucket="month"
+            sortable
+            testID="pivot"
+          />
         </View>
 
         <View style={styles.section}>
@@ -221,6 +234,11 @@ const styles = StyleSheet.create({
   section: {
     marginTop: 20,
     paddingHorizontal: 16,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#111827',
   },
   modalOverlay: {
     flex: 1,
