@@ -1,6 +1,7 @@
 import React, { useMemo, useState, useCallback } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Platform } from 'react-native';
 import type { OrderData } from '@/types/finance';
+import { useRouter } from 'expo-router';
 
 export type PivotMeasure = 'revenue' | 'orders' | 'units' | 'aov';
 export interface PivotGridProps {
@@ -44,6 +45,7 @@ export default function PivotGrid({
   sortable = true,
   testID,
 }: PivotGridProps) {
+  const router = useRouter();
   const [measure, setMeasure] = useState<PivotMeasure>(initialMeasure);
   const [sortBy, setSortBy] = useState<'rowTotal' | string>('rowTotal');
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc');
@@ -199,9 +201,17 @@ export default function PivotGrid({
           <ScrollView style={styles.bodyScroll} nestedScrollEnabled testID="pivot-scroll-y">
             {sortedRows.map((r) => (
               <View key={r} style={styles.dataRow} testID={`row-${r}`}>
-                <View style={[styles.cell, styles.firstCol]}>
+                <TouchableOpacity
+                  onPress={() => {
+                    const id = encodeURIComponent(r);
+                    console.log('[PivotGrid] navigate to /portal/customers/', id);
+                    router.push({ pathname: '/portal/customers/[id]', params: { id } });
+                  }}
+                  accessibilityRole="button"
+                  style={[styles.cell, styles.firstCol]}
+                >
                   <Text style={styles.rowLabel} numberOfLines={1}>{r}</Text>
-                </View>
+                </TouchableOpacity>
                 {cols.map((c) => {
                   const v = cells[r]?.[c] ?? 0;
                   const bg = colorFor(v) + (Platform.OS === 'web' ? '22' : '');

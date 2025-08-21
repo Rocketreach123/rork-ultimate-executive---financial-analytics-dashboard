@@ -22,6 +22,8 @@ function RootLayoutNav() {
       <Stack.Screen name="dashboard/process-mix" />
       <Stack.Screen name="dashboard/customers" />
       <Stack.Screen name="dashboard/trends" />
+      <Stack.Screen name="portal/customers/index" options={{ presentation: 'card' }} />
+      <Stack.Screen name="portal/customers/[id]" options={{ presentation: 'card' }} />
     </Stack>
   );
 }

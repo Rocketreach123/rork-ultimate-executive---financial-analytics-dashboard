@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { CustomerMetrics } from '@/types/finance';
 import { ChevronRight } from 'lucide-react-native';
+import { useRouter } from 'expo-router';
 
 interface CustomerTableProps {
   customers: CustomerMetrics[];
@@ -10,6 +11,7 @@ interface CustomerTableProps {
 }
 
 export function CustomerTable({ customers, title, onCustomerPress }: CustomerTableProps) {
+  const router = useRouter();
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
@@ -42,7 +44,17 @@ export function CustomerTable({ customers, title, onCustomerPress }: CustomerTab
           <TouchableOpacity
             key={customer.company}
             style={[styles.row, index % 2 === 0 && styles.evenRow]}
-            onPress={() => onCustomerPress?.(customer)}
+            onPress={() => {
+              if (onCustomerPress) {
+                onCustomerPress(customer);
+              } else {
+                const id = encodeURIComponent(customer.company);
+                console.log('[CustomerTable] navigate to /portal/customers/', id);
+                router.push({ pathname: '/portal/customers/[id]', params: { id } });
+              }
+            }}
+            accessibilityRole="button"
+            testID={`customer-row-${customer.company}`}
             activeOpacity={0.7}
           >
             <Text style={[styles.cellText, styles.companyColumn]} numberOfLines={1}>
