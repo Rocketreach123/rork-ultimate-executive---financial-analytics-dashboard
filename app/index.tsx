@@ -18,6 +18,7 @@ export default function Home() {
     { label: 'Financial Analytics', href: '/dashboard/financial', icon: DollarSign },
     { label: 'Customers', href: '/dashboard/customers', icon: Users },
     { label: 'Trends', href: '/dashboard/trends', icon: TrendingUp },
+    { label: 'Customer Portal', href: '/portal/customers', icon: Users },
   ]), []);
 
   return (

@@ -49,10 +49,19 @@ export default function CustomersList() {
         });
         const response = await mockFinanceGet(`/api/analytics/customers/pivot?${params.toString()}`) as PivotResponse;
         console.log('[CustomersList] Pivot response:', response);
-        setMonths(response.months ?? []);
-        setRows(response.rows ?? []);
+        
+        if (response && typeof response === 'object' && 'months' in response && 'rows' in response) {
+          setMonths(response.months ?? []);
+          setRows(response.rows ?? []);
+        } else {
+          console.log('[CustomersList] Invalid response format:', response);
+          setMonths([]);
+          setRows([]);
+        }
       } catch (e) {
         console.log('[CustomersList] load error', e);
+        setMonths([]);
+        setRows([]);
       }
     })();
   }, [query, clientType, minSpend, fromDate, toDate]);
@@ -197,6 +206,12 @@ export default function CustomersList() {
             <View style={styles.emptyState}>
               <Text style={[styles.emptyText, { color: colors.subtle }]}>Loading pivot data...</Text>
               <Text style={[styles.debugText, { color: colors.subtle }]}>Months: {months.length}, Rows: {rows.length}, Filtered: {filtered.length}</Text>
+              <TouchableOpacity 
+                style={[styles.testBtn, { backgroundColor: colors.primary }]} 
+                onPress={() => handleCustomerClick({ customer_id: 'test_001', company: 'Test Customer', client_type: 'Direct', monthly: [1000, 2000], total: 3000, orders: 5, units: 100 })}
+              >
+                <Text style={[styles.testBtnText, { color: colors.card }]}>Test Customer Profile</Text>
+              </TouchableOpacity>
             </View>
           )}
         </Card>
@@ -226,4 +241,6 @@ const styles = StyleSheet.create({
   emptyState: { padding: 40, alignItems: 'center' },
   emptyText: { fontSize: 14 },
   debugText: { fontSize: 12, marginTop: 8 },
+  testBtn: { marginTop: 16, paddingVertical: 12, paddingHorizontal: 24, borderRadius: 8 },
+  testBtnText: { fontSize: 14, fontWeight: '600', textAlign: 'center' },
 });

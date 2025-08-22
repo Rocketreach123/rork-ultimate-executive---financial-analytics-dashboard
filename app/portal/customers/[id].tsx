@@ -95,6 +95,11 @@ export default function CustomerProfile() {
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
+    if (!customerId) {
+      console.log('[CustomerProfile] No customer ID provided');
+      return;
+    }
+    
     (async () => {
       try {
         console.log('[CustomerProfile] Loading data for customer:', customerId);
@@ -106,10 +111,30 @@ export default function CustomerProfile() {
         ]);
         
         console.log('[CustomerProfile] Data loaded:', { summaryRes, servicesRes, seasonalityRes, benchmarkRes });
-        setSummary(summaryRes);
-        setServices(servicesRes);
-        setSeasonality(seasonalityRes);
-        setBenchmark(benchmarkRes);
+        
+        if (summaryRes && typeof summaryRes === 'object' && 'customer' in summaryRes) {
+          setSummary(summaryRes);
+        } else {
+          console.log('[CustomerProfile] Invalid summary response:', summaryRes);
+        }
+        
+        if (servicesRes && typeof servicesRes === 'object' && 'categories' in servicesRes) {
+          setServices(servicesRes);
+        } else {
+          console.log('[CustomerProfile] Invalid services response:', servicesRes);
+        }
+        
+        if (seasonalityRes && typeof seasonalityRes === 'object' && 'months' in seasonalityRes) {
+          setSeasonality(seasonalityRes);
+        } else {
+          console.log('[CustomerProfile] Invalid seasonality response:', seasonalityRes);
+        }
+        
+        if (benchmarkRes && typeof benchmarkRes === 'object' && 'months' in benchmarkRes) {
+          setBenchmark(benchmarkRes);
+        } else {
+          console.log('[CustomerProfile] Invalid benchmark response:', benchmarkRes);
+        }
       } catch (e) {
         console.log('[CustomerProfile] load error', e);
       }

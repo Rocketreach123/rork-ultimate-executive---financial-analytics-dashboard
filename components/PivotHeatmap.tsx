@@ -39,12 +39,25 @@ export default function PivotHeatmap({ months, rows, onCustomerClick }: Props) {
   
   const colStats = useMemo(() => {
     if (rows.length === 0 || months.length === 0) {
+      console.log('[PivotHeatmap] No data for column stats');
       return { min: [], max: [] };
     }
-    const min: number[] = months.map((_, i) => Math.min(...rows.map(r => r.monthly[i] ?? 0)));
-    const max: number[] = months.map((_, i) => Math.max(...rows.map(r => r.monthly[i] ?? 0)));
-    console.log('[PivotHeatmap] Column stats:', { min: min.slice(0, 3), max: max.slice(0, 3) });
-    return { min, max };
+    
+    try {
+      const min: number[] = months.map((_, i) => {
+        const values = rows.map(r => r.monthly?.[i] ?? 0).filter(v => typeof v === 'number');
+        return values.length > 0 ? Math.min(...values) : 0;
+      });
+      const max: number[] = months.map((_, i) => {
+        const values = rows.map(r => r.monthly?.[i] ?? 0).filter(v => typeof v === 'number');
+        return values.length > 0 ? Math.max(...values) : 1;
+      });
+      console.log('[PivotHeatmap] Column stats:', { min: min.slice(0, 3), max: max.slice(0, 3) });
+      return { min, max };
+    } catch (e) {
+      console.log('[PivotHeatmap] Error calculating column stats:', e);
+      return { min: [], max: [] };
+    }
   }, [months, rows]);
 
   return (

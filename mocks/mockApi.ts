@@ -1,6 +1,7 @@
 import { FiltersPayload } from '@/types/finance';
 
 export async function mockFinanceGet(path: string): Promise<unknown> {
+  console.log('[mockFinanceGet] Called with path:', path);
   await new Promise(r => setTimeout(r, 200));
 
   if (path.startsWith('/api/finance/pulse/trend/category')) {
@@ -247,5 +248,6 @@ export async function mockFinanceGet(path: string): Promise<unknown> {
     return { ok: true };
   }
 
+  console.log('[mockFinanceGet] No matching endpoint for path:', path);
   return {};
 }
