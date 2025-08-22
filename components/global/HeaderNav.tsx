@@ -18,6 +18,7 @@ export default function HeaderNav({ title }: Props) {
     { label: 'Executive Dashboard', href: '/dashboard/executive' },
     { label: 'Financial Analytics', href: '/dashboard/financial' },
     { label: 'Customers', href: '/dashboard/customers' },
+    { label: 'Customer Portal', href: '/portal/customers' },
     { label: 'Trends', href: '/dashboard/trends' },
   ]), []);
 
@@ -40,7 +41,8 @@ export default function HeaderNav({ title }: Props) {
             {idx===0 && <BarChart3 size={14} color={idx===activeIdx ? colors.bg : colors.text} />}
             {idx===1 && <DollarSign size={14} color={idx===activeIdx ? colors.bg : colors.text} />}
             {idx===2 && <Users size={14} color={idx===activeIdx ? colors.bg : colors.text} />}
-            {idx===3 && <TrendingUp size={14} color={idx===activeIdx ? colors.bg : colors.text} />}
+            {idx===3 && <Users size={14} color={idx===activeIdx ? colors.bg : colors.text} />}
+            {idx===4 && <TrendingUp size={14} color={idx===activeIdx ? colors.bg : colors.text} />}
             <Text style={[styles.chipText, { color: idx===activeIdx ? colors.bg : colors.text }]} numberOfLines={1}>{n.label}</Text>
           </TouchableOpacity>
         ))}

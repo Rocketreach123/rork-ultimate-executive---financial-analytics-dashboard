@@ -160,24 +160,42 @@ export async function mockFinanceGet(path: string): Promise<unknown> {
 
   // Customers pivot endpoint
   if (path.startsWith('/api/analytics/customers/pivot')) {
+    console.log('[mockFinanceGet] Generating customer pivot data');
     const months = ['2025-01', '2025-02', '2025-03', '2025-04', '2025-05', '2025-06', '2025-07', '2025-08'];
     const clientTypes = ['Direct', 'Wholesale', 'Education', 'Nonprofit'];
+    const companyNames = [
+      'Urban Threads', 'Gym Club', 'Enterprise Corp', 'Yoga Studio', 'Sports Direct',
+      'Fashion Forward', 'Team Gear', 'Custom Apparel Co', 'Print Masters', 'Design Hub',
+      'Athletic Wear Inc', 'School District 42', 'University Store', 'Corporate Solutions',
+      'Event Planners LLC', 'Marketing Agency', 'Retail Chain', 'Boutique Shop',
+      'Non-Profit Org', 'Community Center', 'Local Business', 'Startup Inc',
+      'Tech Company', 'Healthcare Group', 'Restaurant Chain', 'Hotel Group'
+    ];
     
     const generateRow = (i: number) => {
-      const monthly = months.map(() => Math.round(Math.random() * 90000));
+      // Create more realistic monthly data with some seasonality
+      const baseAmount = 10000 + Math.random() * 80000;
+      const monthly = months.map((_, monthIndex) => {
+        // Add seasonality - higher in summer months
+        const seasonalMultiplier = monthIndex >= 4 && monthIndex <= 7 ? 1.3 : 0.8;
+        const variance = 0.7 + Math.random() * 0.6; // 0.7 to 1.3 multiplier
+        return Math.round(baseAmount * seasonalMultiplier * variance);
+      });
       const total = monthly.reduce((a, b) => a + b, 0);
+      
       return {
         customer_id: `cust_${String(i + 1).padStart(3, '0')}`,
-        company: i % 3 === 0 ? 'Urban Threads' : `Customer ${i + 1}`,
+        company: companyNames[i % companyNames.length],
         client_type: clientTypes[i % clientTypes.length],
         monthly,
         total,
-        orders: Math.round(40 + Math.random() * 120),
-        units: Math.round(1000 + Math.random() * 8000),
+        orders: Math.round(20 + (total / 3000)), // Orders based on total spend
+        units: Math.round(500 + (total / 100)), // Units based on total spend
       };
     };
     
-    const rows = Array.from({ length: 40 }, (_, i) => generateRow(i));
+    const rows = Array.from({ length: 26 }, (_, i) => generateRow(i));
+    console.log('[mockFinanceGet] Generated', rows.length, 'customer rows');
     
     return {
       months,
@@ -189,29 +207,51 @@ export async function mockFinanceGet(path: string): Promise<unknown> {
   // Customer summary endpoint
   if (path.match(/\/api\/customers\/[^/]+\/summary/)) {
     const customerId = path.split('/api/customers/')[1].split('/summary')[0];
+    console.log('[mockFinanceGet] Customer summary for ID:', customerId);
+    
+    // Map customer ID to company name
+    const companyNames = {
+      'cust_001': 'Urban Threads',
+      'cust_002': 'Gym Club', 
+      'cust_003': 'Enterprise Corp',
+      'cust_004': 'Yoga Studio',
+      'cust_005': 'Sports Direct',
+    };
+    
+    const companyName = companyNames[customerId as keyof typeof companyNames] || decodeURIComponent(customerId);
+    const clientTypes = ['Direct', 'Wholesale', 'Education', 'Nonprofit'];
+    const referralSources = ['Trade Show', 'Google Ads', 'Referral', 'Cold Outreach', 'Website'];
+    const distributorGroups = [['ASI', 'SGIA'], ['SAGE'], ['ASI'], ['PPAI', 'SAGE'], ['Independent']];
+    
+    const baseRevenue = 200000 + Math.random() * 800000;
+    const orders = Math.round(50 + Math.random() * 300);
+    
     return {
       customer: {
         id: customerId,
-        name: 'Urban Threads',
-        client_type: 'Direct',
-        referral_source: 'Trade Show',
-        distributor_groups: ['ASI', 'SGIA'],
-        red_flag: false,
+        name: companyName,
+        client_type: clientTypes[Math.floor(Math.random() * clientTypes.length)],
+        referral_source: referralSources[Math.floor(Math.random() * referralSources.length)],
+        distributor_groups: distributorGroups[Math.floor(Math.random() * distributorGroups.length)],
+        red_flag: Math.random() < 0.1, // 10% chance of red flag
       },
       stats: {
-        historical_spend: 512346,
-        orders: 184,
-        units: 9212,
-        aov: 1746,
+        historical_spend: Math.round(baseRevenue),
+        orders,
+        units: Math.round(orders * 30 + Math.random() * 5000),
+        aov: Math.round(baseRevenue / orders),
         last_order_date: '2025-08-18',
-        avg_weekly_revenue: 12890,
-        avg_monthly_revenue: 55621,
-        avg_quarterly_revenue: 166863,
-        avg_weekly_orders: 6.2,
-        avg_monthly_orders: 27.4,
-        avg_quarterly_orders: 82.2,
+        avg_weekly_revenue: Math.round(baseRevenue / 52),
+        avg_monthly_revenue: Math.round(baseRevenue / 12),
+        avg_quarterly_revenue: Math.round(baseRevenue / 4),
+        avg_weekly_orders: Math.round((orders / 52) * 10) / 10,
+        avg_monthly_orders: Math.round((orders / 12) * 10) / 10,
+        avg_quarterly_orders: Math.round((orders / 4) * 10) / 10,
       },
-      ranking: { overall: 12, in_type: 3 },
+      ranking: { 
+        overall: Math.floor(Math.random() * 500) + 1, 
+        in_type: Math.floor(Math.random() * 100) + 1 
+      },
     };
   }
 

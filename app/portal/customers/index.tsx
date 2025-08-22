@@ -39,7 +39,7 @@ export default function CustomersList() {
   useEffect(() => {
     (async () => {
       try {
-        console.log('[CustomersList] Loading pivot data...');
+        console.log('[CustomersList] Loading pivot data with params:', { fromDate, toDate, query, clientType, minSpend });
         const params = new URLSearchParams({
           from: fromDate,
           to: toDate,
@@ -47,10 +47,20 @@ export default function CustomersList() {
           type: clientType,
           min_spend: minSpend || '0',
         });
-        const response = await mockFinanceGet(`/api/analytics/customers/pivot?${params.toString()}`) as PivotResponse;
-        console.log('[CustomersList] Pivot response:', response);
+        const url = `/api/analytics/customers/pivot?${params.toString()}`;
+        console.log('[CustomersList] Fetching URL:', url);
+        
+        const response = await mockFinanceGet(url) as PivotResponse;
+        console.log('[CustomersList] Pivot response received:', {
+          hasMonths: !!response?.months,
+          monthsLength: response?.months?.length,
+          hasRows: !!response?.rows,
+          rowsLength: response?.rows?.length,
+          responseKeys: Object.keys(response || {})
+        });
         
         if (response && typeof response === 'object' && 'months' in response && 'rows' in response) {
+          console.log('[CustomersList] Setting data - months:', response.months.length, 'rows:', response.rows.length);
           setMonths(response.months ?? []);
           setRows(response.rows ?? []);
         } else {
