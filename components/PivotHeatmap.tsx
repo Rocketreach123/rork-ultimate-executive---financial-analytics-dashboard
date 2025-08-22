@@ -15,6 +15,8 @@ type Row = {
   last_order_date?: string;
   credit_terms?: string;
   distributor_groups?: string[];
+  decoration_methods?: string[];
+  vip_status?: boolean;
   red_flag?: boolean;
   share_of_wallet?: number;
 };
@@ -124,6 +126,7 @@ export default function PivotHeatmap({ months, rows, onCustomerClick }: Props) {
                     >
                       <View style={styles.companyInfo}>
                         <View style={styles.companyNameRow}>
+                          {r.vip_status && <Award size={12} color={colors.warning} />}
                           {r.red_flag && <AlertTriangle size={12} color={colors.error} />}
                           <Text style={[styles.companyName, { color: colors.primary }]} numberOfLines={1}>
                             {r.company}

@@ -16,6 +16,7 @@ interface CustomerSummary {
     client_type: string;
     referral_source: string;
     distributor_groups: string[];
+    decoration_methods?: string[];
     red_flag: boolean;
     vip_status?: boolean;
     credit_terms?: string;
@@ -350,6 +351,20 @@ export default function CustomerProfile() {
                   ))}
                 </View>
               )}
+              
+              {/* Decoration Methods */}
+              {summary.customer.decoration_methods && summary.customer.decoration_methods.length > 0 && (
+                <View style={styles.decorationMethodsContainer}>
+                  <Text style={[styles.decorationMethodsLabel, { color: colors.subtle }]}>Decoration Methods:</Text>
+                  <View style={styles.decorationMethodsRow}>
+                    {summary.customer.decoration_methods.map((method) => (
+                      <View key={method} style={[styles.decorationTag, { backgroundColor: colors.warning, opacity: 0.1 }]}>
+                        <Text style={[styles.decorationTagText, { color: colors.warning }]}>{method}</Text>
+                      </View>
+                    ))}
+                  </View>
+                </View>
+              )}
             </View>
             
             <View style={styles.headerActions}>
@@ -383,6 +398,7 @@ export default function CustomerProfile() {
           <Kpi label="Avg Weekly ($ / Orders)" value={`${money(st.avg_weekly_revenue)} / ${st.avg_weekly_orders.toFixed(1)}`} testId="kpi-avg-weekly" />
           <Kpi label="Avg Monthly ($ / Orders)" value={`${money(st.avg_monthly_revenue)} / ${st.avg_monthly_orders.toFixed(1)}`} testId="kpi-avg-monthly" />
           <Kpi label="Avg Quarterly ($ / Orders)" value={`${money(st.avg_quarterly_revenue)} / ${st.avg_quarterly_orders.toFixed(1)}`} testId="kpi-avg-quarterly" />
+          <Kpi label="Share of Wallet" value={`${(st.share_of_wallet || 0).toFixed(1)}%`} testId="kpi-share-of-wallet" />
           <View style={[styles.kpiCard, { backgroundColor: colors.card, borderColor: colors.border }]} testID="kpi-ranking">
             <Text style={[styles.kpiLabel, { color: colors.subtle }]}>Rankings</Text>
             <View style={styles.rankingContainer}>
@@ -503,6 +519,26 @@ export default function CustomerProfile() {
                 </View>
               </View>
             </View>
+            <View style={styles.crmRow}>
+              <View style={styles.crmField}>
+                <Text style={[styles.crmLabel, { color: colors.text }]}>Decoration Methods</Text>
+                <TextInput
+                  style={[styles.crmInput, { color: colors.text, backgroundColor: colors.surface, borderColor: colors.border }]}
+                  defaultValue={(c.decoration_methods || []).join(', ')}
+                  onBlur={(e) => saveCRM({ decoration_methods: e.nativeEvent.text.split(',').map(s => s.trim()).filter(Boolean) })}
+                  testID="crm-decoration-methods"
+                  placeholder="Screen Print, Embroidery, DTF..."
+                  placeholderTextColor={colors.subtle}
+                />
+                <View style={styles.tagsContainer}>
+                  {(c.decoration_methods || []).map((method) => (
+                    <View key={method} style={[styles.tag, { backgroundColor: colors.warning, opacity: 0.1, borderColor: colors.warning }]}>
+                      <Text style={[styles.tagText, { color: colors.warning }]}>{method}</Text>
+                    </View>
+                  ))}
+                </View>
+              </View>
+            </View>
             {saving && (
               <Text style={[styles.savingText, { color: colors.subtle }]}>Saving…</Text>
             )}
@@ -534,6 +570,11 @@ const styles = StyleSheet.create({
   tagsContainer: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   tag: { paddingVertical: 4, paddingHorizontal: 8, borderRadius: 12 },
   tagText: { fontSize: 11, fontWeight: '600' },
+  decorationMethodsContainer: { marginTop: 8 },
+  decorationMethodsLabel: { fontSize: 12, marginBottom: 4 },
+  decorationMethodsRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 6 },
+  decorationTag: { paddingVertical: 3, paddingHorizontal: 6, borderRadius: 10 },
+  decorationTagText: { fontSize: 10, fontWeight: '600' },
   kpiGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 12 },
   kpiCard: { flex: 1, minWidth: '45%', padding: 12, borderWidth: 1, borderRadius: 12 },
   kpiLabel: { fontSize: 12, marginBottom: 4 },
@@ -565,7 +606,7 @@ const styles = StyleSheet.create({
   contactText: { fontSize: 14 },
   notesInput: { borderWidth: 1, padding: 12, borderRadius: 8, fontSize: 14, minHeight: 120 },
   crmFields: { gap: 16 },
-  crmRow: { gap: 16 },
+  crmRow: { flexDirection: 'row', gap: 16 },
   crmField: { gap: 8 },
   crmLabel: { fontSize: 14, fontWeight: '600' },
   crmInput: { borderWidth: 1, paddingVertical: 8, paddingHorizontal: 12, borderRadius: 8, fontSize: 14 },

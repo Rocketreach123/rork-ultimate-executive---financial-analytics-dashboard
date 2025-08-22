@@ -188,6 +188,11 @@ export async function mockFinanceGet(path: string): Promise<unknown> {
       // Add additional fields for enhanced functionality
       const creditTermsOptions = ['Net30', 'COD', 'Prepaid'];
       const distributorGroupsOptions = [['ASI'], ['SAGE'], ['SGIA'], ['PPAI'], ['ASI', 'SAGE'], ['Independent']];
+      const decorationMethodsOptions = [
+        ['Screen Print'], ['Embroidery'], ['DTF'], ['Heat Press'], ['Vinyl'], ['Sublimation'],
+        ['Screen Print', 'Embroidery'], ['DTF', 'Heat Press'], ['Screen Print', 'DTF'], 
+        ['Embroidery', 'Vinyl'], ['Laser Engraving'], ['Screen Print', 'Embroidery', 'DTF']
+      ];
       const lastOrderDays = Math.floor(Math.random() * 90); // 0-90 days ago
       const lastOrderDate = new Date();
       lastOrderDate.setDate(lastOrderDate.getDate() - lastOrderDays);
@@ -204,6 +209,8 @@ export async function mockFinanceGet(path: string): Promise<unknown> {
         last_order_date: lastOrderDate.toISOString().split('T')[0],
         credit_terms: creditTermsOptions[i % creditTermsOptions.length],
         distributor_groups: distributorGroupsOptions[i % distributorGroupsOptions.length],
+        decoration_methods: decorationMethodsOptions[i % decorationMethodsOptions.length],
+        vip_status: Math.random() < 0.15, // 15% chance of VIP status
         red_flag: Math.random() < 0.05, // 5% chance of red flag
         share_of_wallet: Math.random() * 100, // 0-100%
       };
@@ -249,6 +256,11 @@ export async function mockFinanceGet(path: string): Promise<unknown> {
     ];
     
     const tags = [['VIP', 'Preferred'], ['Net30'], ['High Volume'], ['Seasonal'], []];
+    const decorationMethodsOptions = [
+      ['Screen Print'], ['Embroidery'], ['DTF'], ['Heat Press'], ['Vinyl'], ['Sublimation'],
+      ['Screen Print', 'Embroidery'], ['DTF', 'Heat Press'], ['Screen Print', 'DTF'], 
+      ['Embroidery', 'Vinyl'], ['Laser Engraving'], ['Screen Print', 'Embroidery', 'DTF']
+    ];
     
     return {
       customer: {
@@ -257,6 +269,7 @@ export async function mockFinanceGet(path: string): Promise<unknown> {
         client_type: clientTypes[Math.floor(Math.random() * clientTypes.length)],
         referral_source: referralSources[Math.floor(Math.random() * referralSources.length)],
         distributor_groups: distributorGroups[Math.floor(Math.random() * distributorGroups.length)],
+        decoration_methods: decorationMethodsOptions[Math.floor(Math.random() * decorationMethodsOptions.length)],
         red_flag: Math.random() < 0.1, // 10% chance of red flag
         vip_status: Math.random() < 0.15, // 15% chance of VIP
         credit_terms: 'Net30',

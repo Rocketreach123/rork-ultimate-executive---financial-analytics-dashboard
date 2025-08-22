@@ -22,6 +22,8 @@ interface PivotRow {
   last_order_date?: string;
   credit_terms?: string;
   distributor_groups?: string[];
+  decoration_methods?: string[];
+  vip_status?: boolean;
   red_flag?: boolean;
   share_of_wallet?: number;
 }
@@ -46,6 +48,8 @@ export default function CustomersList() {
   const [activityRecency, setActivityRecency] = useState<string>('');
   const [creditTerms, setCreditTerms] = useState<string>('');
   const [distributorGroup, setDistributorGroup] = useState<string>('');
+  const [decorationMethod, setDecorationMethod] = useState<string>('');
+  const [vipStatus, setVipStatus] = useState<string>('');
   const [sortBy, setSortBy] = useState<string>('total');
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc');
   const [fromDate, setFromDate] = useState<string>('2025-01-01');
@@ -59,7 +63,7 @@ export default function CustomersList() {
       try {
         console.log('[CustomersList] Loading pivot data with params:', { 
           fromDate, toDate, query, clientType, minSpend, maxSpend, minOrders, maxOrders, 
-          activityRecency, creditTerms, distributorGroup, sortBy, sortDir 
+          activityRecency, creditTerms, distributorGroup, decorationMethod, vipStatus, sortBy, sortDir 
         });
         const params = new URLSearchParams({
           from: fromDate,
@@ -73,6 +77,8 @@ export default function CustomersList() {
           activity_recency: activityRecency,
           credit_terms: creditTerms,
           distributor_group: distributorGroup,
+          decoration_method: decorationMethod,
+          vip_status: vipStatus,
           sort_by: sortBy,
           sort_dir: sortDir,
         });
@@ -105,7 +111,7 @@ export default function CustomersList() {
         setLoading(false);
       }
     })();
-  }, [query, clientType, minSpend, maxSpend, minOrders, maxOrders, activityRecency, creditTerms, distributorGroup, sortBy, sortDir, fromDate, toDate]);
+  }, [query, clientType, minSpend, maxSpend, minOrders, maxOrders, activityRecency, creditTerms, distributorGroup, decorationMethod, vipStatus, sortBy, sortDir, fromDate, toDate]);
 
   const filtered = useMemo(() => {
     let result = rows.filter(r => {
@@ -117,9 +123,12 @@ export default function CustomersList() {
       const matchesMaxOrders = !maxOrders || r.orders <= Number(maxOrders);
       const matchesCreditTerms = !creditTerms || r.credit_terms === creditTerms;
       const matchesDistributorGroup = !distributorGroup || r.distributor_groups?.includes(distributorGroup);
+      const matchesDecorationMethod = !decorationMethod || r.decoration_methods?.includes(decorationMethod);
+      const matchesVipStatus = !vipStatus || (vipStatus === 'vip' && r.vip_status) || (vipStatus === 'regular' && !r.vip_status);
       
       return matchesQuery && matchesType && matchesMinSpend && matchesMaxSpend && 
-             matchesMinOrders && matchesMaxOrders && matchesCreditTerms && matchesDistributorGroup;
+             matchesMinOrders && matchesMaxOrders && matchesCreditTerms && matchesDistributorGroup &&
+             matchesDecorationMethod && matchesVipStatus;
     });
     
     // Apply sorting
@@ -162,7 +171,7 @@ export default function CustomersList() {
     });
     
     return result;
-  }, [rows, query, clientType, minSpend, maxSpend, minOrders, maxOrders, creditTerms, distributorGroup, sortBy, sortDir]);
+  }, [rows, query, clientType, minSpend, maxSpend, minOrders, maxOrders, creditTerms, distributorGroup, decorationMethod, vipStatus, sortBy, sortDir]);
 
   const handleCustomerClick = (row: PivotRow) => {
     router.push({ pathname: '/portal/customers/[id]', params: { id: row.customer_id } });
@@ -237,6 +246,8 @@ export default function CustomersList() {
     setActivityRecency('');
     setCreditTerms('');
     setDistributorGroup('');
+    setDecorationMethod('');
+    setVipStatus('');
   };
 
   const totalRevenue = useMemo(() => {
@@ -338,7 +349,7 @@ export default function CustomersList() {
             />
           </View>
           
-          {/* Additional Filters */}
+          {/* Additional Filters Row 1 */}
           <View style={styles.filtersRow}>
             <View style={[styles.pickerContainer, { backgroundColor: colors.surface, borderColor: colors.border }]}>
               <Picker
@@ -365,6 +376,39 @@ export default function CustomersList() {
                 <Picker.Item label="SAGE" value="SAGE" />
                 <Picker.Item label="SGIA" value="SGIA" />
                 <Picker.Item label="PPAI" value="PPAI" />
+              </Picker>
+            </View>
+          </View>
+          
+          {/* Additional Filters Row 2 */}
+          <View style={styles.filtersRow}>
+            <View style={[styles.pickerContainer, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+              <Picker
+                selectedValue={decorationMethod}
+                onValueChange={setDecorationMethod}
+                style={[styles.picker, { color: colors.text }]}
+                testID="filter-decoration-method"
+              >
+                <Picker.Item label="All Decoration Methods" value="" />
+                <Picker.Item label="Screen Print" value="Screen Print" />
+                <Picker.Item label="Embroidery" value="Embroidery" />
+                <Picker.Item label="DTF" value="DTF" />
+                <Picker.Item label="Heat Press" value="Heat Press" />
+                <Picker.Item label="Vinyl" value="Vinyl" />
+                <Picker.Item label="Sublimation" value="Sublimation" />
+                <Picker.Item label="Laser Engraving" value="Laser Engraving" />
+              </Picker>
+            </View>
+            <View style={[styles.pickerContainer, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+              <Picker
+                selectedValue={vipStatus}
+                onValueChange={setVipStatus}
+                style={[styles.picker, { color: colors.text }]}
+                testID="filter-vip-status"
+              >
+                <Picker.Item label="All Customer Types" value="" />
+                <Picker.Item label="VIP Customers" value="vip" />
+                <Picker.Item label="Regular Customers" value="regular" />
               </Picker>
             </View>
           </View>
