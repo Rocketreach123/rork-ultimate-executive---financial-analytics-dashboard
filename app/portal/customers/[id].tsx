@@ -164,8 +164,6 @@ export default function CustomerProfile() {
   const saveCRM = async (payload: Partial<CustomerSummary['customer']>) => {
     setSaving(true);
     try {
-      // Mock PATCH request - in real app this would be:
-      // await fetch(`/api/customers/${customerId}/crm`, { method: 'PATCH', body: JSON.stringify(payload) });
       await new Promise(resolve => setTimeout(resolve, 500));
       
       if (summary) {
@@ -185,14 +183,14 @@ export default function CustomerProfile() {
     const map: Record<string, string> = {
       'screen print': 'Screen Print',
       'screen printing': 'Screen Print',
-      'emb': 'Embroidery',
-      'embroidery': 'Embroidery',
-      'dtf': 'DTF',
+      emb: 'Embroidery',
+      embroidery: 'Embroidery',
+      dtf: 'DTF',
       'direct to film': 'DTF',
       'heat press': 'Heat Press',
-      'vinyl': 'Vinyl',
-      'sublimation': 'Sublimation',
-      'laser': 'Laser Engraving',
+      vinyl: 'Vinyl',
+      sublimation: 'Sublimation',
+      laser: 'Laser Engraving',
       'laser engraving': 'Laser Engraving',
     };
     const src = (summary?.customer?.decoration_methods || []) as string[];
@@ -408,7 +406,7 @@ export default function CustomerProfile() {
                   <Text style={[styles.decorationMethodsLabel, { color: colors.subtle }]}>Decoration Methods</Text>
                   <View style={styles.decorationMethodsRow}>
                     {normalizedMethods.map((method) => (
-                      <View key={method} style={[styles.decorationTag, { backgroundColor: colors.warning, opacity: 0.1 }]}>
+                      <View key={method} style={[styles.decorationTag, { backgroundColor: colors.warning, opacity: 0.1 }]}> 
                         <Text style={[styles.decorationTagText, { color: colors.warning }]}>{method}</Text>
                       </View>
                     ))}
@@ -556,7 +554,7 @@ export default function CustomerProfile() {
           {/* Benchmark */}
           <ChartCard title={`Benchmark: ${c.name} vs ${c.client_type} Avg`} testId="card-benchmark">
             <View style={styles.benchmarkContainer}>
-              <Text style={[styles.benchmarkNote, { color: colors.subtle }]}>
+              <Text style={[styles.benchmarkNote, { color: colors.subtle }]}> 
                 Customer vs Type Average Revenue
               </Text>
               <Chart
@@ -594,43 +592,6 @@ export default function CustomerProfile() {
                   {c.distributor_groups.map((group) => (
                     <View key={group} style={[styles.tag, { backgroundColor: colors.surface, borderColor: colors.border }]}>
                       <Text style={[styles.tagText, { color: colors.text }]}>{group}</Text>
-                    </View>
-                  ))}
-                </View>
-              </View>
-            </View>
-            <View style={styles.crmRow}>
-              <View style={styles.crmField}>
-                <Text style={[styles.crmLabel, { color: colors.text }]}>Decoration Methods</Text>
-                <TextInput
-                  style={[styles.crmInput, { color: colors.text, backgroundColor: colors.surface, borderColor: colors.border }]}
-                  defaultValue={normalizedMethods.join(', ')}
-                  onBlur={(e) => {
-                    const cleaned = e.nativeEvent.text.split(',').map(s => s.trim()).filter(Boolean);
-                    const map: Record<string, string> = {
-                      'screen print': 'Screen Print',
-                      'screen printing': 'Screen Print',
-                      'emb': 'Embroidery',
-                      'embroidery': 'Embroidery',
-                      'dtf': 'DTF',
-                      'direct to film': 'DTF',
-                      'heat press': 'Heat Press',
-                      'vinyl': 'Vinyl',
-                      'sublimation': 'Sublimation',
-                      'laser': 'Laser Engraving',
-                      'laser engraving': 'Laser Engraving',
-                    };
-                    const norm = cleaned.map(m => map[m.toLowerCase()] || m.replace(/\b\w/g, ch => ch.toUpperCase()));
-                    saveCRM({ decoration_methods: Array.from(new Set(norm)) });
-                  }}
-                  testID="crm-decoration-methods"
-                  placeholder="Screen Print, Embroidery, DTF..."
-                  placeholderTextColor={colors.subtle}
-                />
-                <View style={styles.tagsContainer}>
-                  {(c.decoration_methods || []).map((method) => (
-                    <View key={method} style={[styles.tag, { backgroundColor: colors.warning, opacity: 0.1, borderColor: colors.warning }]}>
-                      <Text style={[styles.tagText, { color: colors.warning }]}>{method}</Text>
                     </View>
                   ))}
                 </View>
