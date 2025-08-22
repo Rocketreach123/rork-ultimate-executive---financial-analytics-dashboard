@@ -97,6 +97,7 @@ export default function CustomerProfile() {
   useEffect(() => {
     (async () => {
       try {
+        console.log('[CustomerProfile] Loading data for customer:', customerId);
         const [summaryRes, servicesRes, seasonalityRes, benchmarkRes] = await Promise.all([
           mockFinanceGet(`/api/customers/${customerId}/summary`) as Promise<CustomerSummary>,
           mockFinanceGet(`/api/customers/${customerId}/services`) as Promise<ServicesResponse>,
@@ -104,6 +105,7 @@ export default function CustomerProfile() {
           mockFinanceGet(`/api/customers/${customerId}/benchmark?bucket=month`) as Promise<BenchmarkResponse>,
         ]);
         
+        console.log('[CustomerProfile] Data loaded:', { summaryRes, servicesRes, seasonalityRes, benchmarkRes });
         setSummary(summaryRes);
         setServices(servicesRes);
         setSeasonality(seasonalityRes);

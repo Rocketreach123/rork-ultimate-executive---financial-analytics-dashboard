@@ -35,9 +35,15 @@ function money(value: number): string {
 export default function PivotHeatmap({ months, rows, onCustomerClick }: Props) {
   const { colors } = useTheme();
   
+  console.log('[PivotHeatmap] Rendering with:', { monthsCount: months.length, rowsCount: rows.length });
+  
   const colStats = useMemo(() => {
+    if (rows.length === 0 || months.length === 0) {
+      return { min: [], max: [] };
+    }
     const min: number[] = months.map((_, i) => Math.min(...rows.map(r => r.monthly[i] ?? 0)));
     const max: number[] = months.map((_, i) => Math.max(...rows.map(r => r.monthly[i] ?? 0)));
+    console.log('[PivotHeatmap] Column stats:', { min: min.slice(0, 3), max: max.slice(0, 3) });
     return { min, max };
   }, [months, rows]);
 
@@ -65,11 +71,14 @@ export default function PivotHeatmap({ months, rows, onCustomerClick }: Props) {
 
           {/* Data Rows */}
           <ScrollView style={styles.dataContainer} showsVerticalScrollIndicator={true}>
-            {rows.map((r) => (
+            {rows.length > 0 ? rows.map((r) => (
               <View key={r.customer_id} style={[styles.dataRow, { borderBottomColor: colors.border }]}>
                 <TouchableOpacity 
                   style={[styles.companyCell, styles.dataCell]}
-                  onPress={() => onCustomerClick(r)}
+                  onPress={() => {
+                    console.log('[PivotHeatmap] Customer clicked:', r.customer_id, r.company);
+                    onCustomerClick(r);
+                  }}
                   testID={`customer-${r.customer_id}`}
                 >
                   <Text style={[styles.companyName, { color: colors.primary }]} numberOfLines={1}>
@@ -84,7 +93,7 @@ export default function PivotHeatmap({ months, rows, onCustomerClick }: Props) {
                   <View key={ci} style={[styles.monthCell, styles.dataCell]}>
                     <View style={[
                       styles.heatCell,
-                      colorFor(v, colStats.min[ci], colStats.max[ci])
+                      colorFor(v, colStats.min[ci] || 0, colStats.max[ci] || 1)
                     ]}>
                       <Text style={[styles.heatText, { color: colors.text }]}>
                         {money(v)}
@@ -105,7 +114,11 @@ export default function PivotHeatmap({ months, rows, onCustomerClick }: Props) {
                   </Text>
                 </View>
               </View>
-            ))}
+            )) : (
+              <View style={styles.noDataRow}>
+                <Text style={[styles.noDataText, { color: colors.subtle }]}>No customer data available</Text>
+              </View>
+            )}
           </ScrollView>
         </View>
       </ScrollView>
@@ -184,5 +197,12 @@ const styles = StyleSheet.create({
   numberText: {
     fontSize: 12,
     textAlign: 'center',
+  },
+  noDataRow: {
+    padding: 20,
+    alignItems: 'center',
+  },
+  noDataText: {
+    fontSize: 14,
   },
 });

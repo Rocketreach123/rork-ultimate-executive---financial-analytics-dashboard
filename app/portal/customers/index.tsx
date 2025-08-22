@@ -32,20 +32,23 @@ export default function CustomersList() {
   const [query, setQuery] = useState<string>('');
   const [clientType, setClientType] = useState<string>('');
   const [minSpend, setMinSpend] = useState<string>('');
-  const [fromDate, setFromDate] = useState<string>('');
-  const [toDate, setToDate] = useState<string>('');
+  const [fromDate, setFromDate] = useState<string>('2025-01-01');
+  const [toDate, setToDate] = useState<string>('2025-08-31');
 
+  // Load initial data on mount
   useEffect(() => {
     (async () => {
       try {
+        console.log('[CustomersList] Loading pivot data...');
         const params = new URLSearchParams({
-          from: fromDate || '2025-01-01',
-          to: toDate || '2025-08-31',
+          from: fromDate,
+          to: toDate,
           query,
           type: clientType,
           min_spend: minSpend || '0',
         });
         const response = await mockFinanceGet(`/api/analytics/customers/pivot?${params.toString()}`) as PivotResponse;
+        console.log('[CustomersList] Pivot response:', response);
         setMonths(response.months ?? []);
         setRows(response.rows ?? []);
       } catch (e) {
@@ -152,22 +155,28 @@ export default function CustomersList() {
           
           {/* Custom Date Range */}
           <View style={styles.dateRow}>
-            <TextInput
-              placeholder="From date"
-              placeholderTextColor={colors.subtle}
-              style={[styles.dateInput, { color: colors.text, backgroundColor: colors.surface, borderColor: colors.border }]}
-              value={fromDate}
-              onChangeText={setFromDate}
-              testID="filter-from"
-            />
-            <TextInput
-              placeholder="To date"
-              placeholderTextColor={colors.subtle}
-              style={[styles.dateInput, { color: colors.text, backgroundColor: colors.surface, borderColor: colors.border }]}
-              value={toDate}
-              onChangeText={setToDate}
-              testID="filter-to"
-            />
+            <View style={styles.dateInputContainer}>
+              <Text style={[styles.dateLabel, { color: colors.text }]}>From:</Text>
+              <TextInput
+                placeholder="YYYY-MM-DD"
+                placeholderTextColor={colors.subtle}
+                style={[styles.dateInput, { color: colors.text, backgroundColor: colors.surface, borderColor: colors.border }]}
+                value={fromDate}
+                onChangeText={setFromDate}
+                testID="filter-from"
+              />
+            </View>
+            <View style={styles.dateInputContainer}>
+              <Text style={[styles.dateLabel, { color: colors.text }]}>To:</Text>
+              <TextInput
+                placeholder="YYYY-MM-DD"
+                placeholderTextColor={colors.subtle}
+                style={[styles.dateInput, { color: colors.text, backgroundColor: colors.surface, borderColor: colors.border }]}
+                value={toDate}
+                onChangeText={setToDate}
+                testID="filter-to"
+              />
+            </View>
           </View>
         </Card>
 
@@ -176,12 +185,20 @@ export default function CustomersList() {
           <View style={styles.pivotHeader}>
             <Text style={[styles.pivotTitle, { color: colors.text }]}>Customers × Month — Pivot Heatmap</Text>
             <Text style={[styles.pivotSubtitle, { color: colors.subtle }]}>Green=High · Yellow=Mid · Red=Low</Text>
+            <Text style={[styles.dataInfo, { color: colors.subtle }]}>Showing {filtered.length} customers</Text>
           </View>
-          <PivotHeatmap
-            months={months}
-            rows={filtered}
-            onCustomerClick={handleCustomerClick}
-          />
+          {months.length > 0 && filtered.length > 0 ? (
+            <PivotHeatmap
+              months={months}
+              rows={filtered}
+              onCustomerClick={handleCustomerClick}
+            />
+          ) : (
+            <View style={styles.emptyState}>
+              <Text style={[styles.emptyText, { color: colors.subtle }]}>Loading pivot data...</Text>
+              <Text style={[styles.debugText, { color: colors.subtle }]}>Months: {months.length}, Rows: {rows.length}, Filtered: {filtered.length}</Text>
+            </View>
+          )}
         </Card>
       </ScrollView>
     </View>
@@ -198,9 +215,15 @@ const styles = StyleSheet.create({
   presetBtn: { paddingVertical: 6, paddingHorizontal: 12, borderWidth: 1, borderRadius: 20 },
   presetText: { fontSize: 12, fontWeight: '600' },
   dateRow: { flexDirection: 'row', gap: 8 },
-  dateInput: { flex: 1, borderWidth: 1, paddingVertical: 8, paddingHorizontal: 10, borderRadius: 8, fontSize: 14 },
+  dateInputContainer: { flex: 1, gap: 4 },
+  dateLabel: { fontSize: 12, fontWeight: '600' },
+  dateInput: { borderWidth: 1, paddingVertical: 8, paddingHorizontal: 10, borderRadius: 8, fontSize: 14 },
   pivotCard: { borderWidth: 1, borderRadius: 16, overflow: 'hidden' },
   pivotHeader: { padding: 16, borderBottomWidth: 1, borderBottomColor: '#E5E7EB' },
   pivotTitle: { fontSize: 16, fontWeight: '600', marginBottom: 4 },
   pivotSubtitle: { fontSize: 12 },
+  dataInfo: { fontSize: 11, marginTop: 4 },
+  emptyState: { padding: 40, alignItems: 'center' },
+  emptyText: { fontSize: 14 },
+  debugText: { fontSize: 12, marginTop: 8 },
 });
