@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TextInput, Switch } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TextInput, Switch, TouchableOpacity, Alert } from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
 import HeaderNav from '@/components/global/HeaderNav';
 import { useTheme } from '@/providers/ThemeProvider';
@@ -7,6 +7,7 @@ import { Card } from '@/components/ui/Card';
 import { spacing } from '@/constants/theme';
 import { mockFinanceGet } from '@/mocks/mockApi';
 import Chart from '@/components/Chart';
+import { User, Mail, Phone, Calendar, TrendingUp, TrendingDown, Award, AlertTriangle, FileText, Activity } from 'lucide-react-native';
 
 interface CustomerSummary {
   customer: {
@@ -16,6 +17,16 @@ interface CustomerSummary {
     referral_source: string;
     distributor_groups: string[];
     red_flag: boolean;
+    vip_status?: boolean;
+    credit_terms?: string;
+    primary_contact?: {
+      name: string;
+      email: string;
+      phone: string;
+      role: string;
+    };
+    tags?: string[];
+    notes?: string;
   };
   stats: {
     historical_spend: number;
@@ -29,6 +40,11 @@ interface CustomerSummary {
     avg_weekly_orders: number;
     avg_monthly_orders: number;
     avg_quarterly_orders: number;
+    open_orders: number;
+    balance_due: number;
+    lifetime_spend: number;
+    growth_pct?: number;
+    share_of_wallet?: number;
   };
   ranking: { overall: number; in_type: number };
 }
@@ -93,6 +109,8 @@ export default function CustomerProfile() {
   const [seasonality, setSeasonality] = useState<SeasonalityResponse | null>(null);
   const [benchmark, setBenchmark] = useState<BenchmarkResponse | null>(null);
   const [saving, setSaving] = useState(false);
+  const [activeTab, setActiveTab] = useState<'overview' | 'orders' | 'invoices' | 'files' | 'contacts' | 'activity' | 'notes'>('overview');
+  const [notes, setNotes] = useState<string>('');
 
   useEffect(() => {
     if (!customerId) {
@@ -114,6 +132,7 @@ export default function CustomerProfile() {
         
         if (summaryRes && typeof summaryRes === 'object' && 'customer' in summaryRes) {
           setSummary(summaryRes);
+          setNotes(summaryRes.customer.notes || '');
         } else {
           console.log('[CustomerProfile] Invalid summary response:', summaryRes);
         }
@@ -174,6 +193,123 @@ export default function CustomerProfile() {
 
   const { customer: c, stats: st, ranking } = summary;
 
+  const renderTabContent = () => {
+    switch (activeTab) {
+      case 'overview':
+        return (
+          <View style={styles.tabContent}>
+            {/* KPI Cards */}
+            <View style={styles.kpiGrid}>
+              <Kpi label="Open Orders" value={st.open_orders} testId="kpi-open-orders" />
+              <Kpi label="Balance Due" value={st.balance_due} money testId="kpi-balance-due" />
+              <Kpi label="Last Order" value={st.last_order_date} testId="kpi-last-order" />
+              <Kpi label="Lifetime Spend" value={st.lifetime_spend} money testId="kpi-lifetime-spend" />
+            </View>
+            
+            {/* Recent Activity */}
+            <ChartCard title="Recent Orders (Last 5)" testId="card-recent-orders">
+              <Text style={[styles.placeholderText, { color: colors.subtle }]}>Recent orders would be displayed here</Text>
+            </ChartCard>
+            
+            <ChartCard title="Recent Payments" testId="card-recent-payments">
+              <Text style={[styles.placeholderText, { color: colors.subtle }]}>Recent payments would be displayed here</Text>
+            </ChartCard>
+          </View>
+        );
+      
+      case 'orders':
+        return (
+          <View style={styles.tabContent}>
+            <ChartCard title="Customer Orders" testId="card-customer-orders">
+              <Text style={[styles.placeholderText, { color: colors.subtle }]}>Orders table with server-side pagination would be here</Text>
+            </ChartCard>
+          </View>
+        );
+      
+      case 'invoices':
+        return (
+          <View style={styles.tabContent}>
+            <ChartCard title="Invoices & Payments" testId="card-invoices-payments">
+              <Text style={[styles.placeholderText, { color: colors.subtle }]}>Invoices table with overdue first, checkbox select + Pay Selected would be here</Text>
+            </ChartCard>
+          </View>
+        );
+      
+      case 'files':
+        return (
+          <View style={styles.tabContent}>
+            <ChartCard title="Customer Files" testId="card-customer-files">
+              <TouchableOpacity style={[styles.uploadBtn, { backgroundColor: colors.primary }]}>
+                <FileText size={16} color={colors.card} />
+                <Text style={[styles.uploadBtnText, { color: colors.card }]}>Upload File</Text>
+              </TouchableOpacity>
+              <Text style={[styles.placeholderText, { color: colors.subtle }]}>File list with signed URLs would be here</Text>
+            </ChartCard>
+          </View>
+        );
+      
+      case 'contacts':
+        return (
+          <View style={styles.tabContent}>
+            <ChartCard title="Customer Contacts" testId="card-customer-contacts">
+              {c.primary_contact && (
+                <View style={styles.contactCard}>
+                  <View style={styles.contactHeader}>
+                    <User size={20} color={colors.primary} />
+                    <Text style={[styles.contactName, { color: colors.text }]}>{c.primary_contact.name}</Text>
+                    <Text style={[styles.contactRole, { color: colors.subtle }]}>{c.primary_contact.role}</Text>
+                  </View>
+                  <View style={styles.contactDetails}>
+                    <View style={styles.contactItem}>
+                      <Mail size={16} color={colors.subtle} />
+                      <Text style={[styles.contactText, { color: colors.text }]}>{c.primary_contact.email}</Text>
+                    </View>
+                    <View style={styles.contactItem}>
+                      <Phone size={16} color={colors.subtle} />
+                      <Text style={[styles.contactText, { color: colors.text }]}>{c.primary_contact.phone}</Text>
+                    </View>
+                  </View>
+                </View>
+              )}
+              <Text style={[styles.placeholderText, { color: colors.subtle }]}>Additional contacts table would be here</Text>
+            </ChartCard>
+          </View>
+        );
+      
+      case 'activity':
+        return (
+          <View style={styles.tabContent}>
+            <ChartCard title="Activity Timeline" testId="card-activity-timeline">
+              <Text style={[styles.placeholderText, { color: colors.subtle }]}>Timeline of events from order_events + payments + shipments would be here</Text>
+            </ChartCard>
+          </View>
+        );
+      
+      case 'notes':
+        return (
+          <View style={styles.tabContent}>
+            <ChartCard title="Customer Notes" testId="card-customer-notes">
+              <TextInput
+                style={[styles.notesInput, { color: colors.text, backgroundColor: colors.surface, borderColor: colors.border }]}
+                placeholder="Add notes about this customer..."
+                placeholderTextColor={colors.subtle}
+                value={notes}
+                onChangeText={setNotes}
+                onBlur={() => saveCRM({ notes })}
+                multiline
+                numberOfLines={8}
+                textAlignVertical="top"
+                testID="customer-notes"
+              />
+            </ChartCard>
+          </View>
+        );
+      
+      default:
+        return null;
+    }
+  };
+
   return (
     <View style={[styles.screen, { backgroundColor: colors.bg }]} testID="customer-profile">
       <HeaderNav title="Customer Profile" />
@@ -182,68 +318,160 @@ export default function CustomerProfile() {
         <Card style={[styles.headerCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
           <View style={styles.headerRow}>
             <View style={styles.headerInfo}>
-              <Text style={[styles.customerName, { color: colors.text }]}>{c.name}</Text>
-              <Text style={[styles.clientType, { color: colors.subtle }]}>{c.client_type}</Text>
+              <View style={styles.customerHeader}>
+                <View style={[styles.avatar, { backgroundColor: colors.primary }]}>
+                  <Text style={[styles.avatarText, { color: colors.card }]}>
+                    {c.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase()}
+                  </Text>
+                </View>
+                <View style={styles.customerDetails}>
+                  <Text style={[styles.customerName, { color: colors.text }]}>{c.name}</Text>
+                  <Text style={[styles.clientType, { color: colors.subtle }]}>{c.client_type} • {c.credit_terms || 'Net30'}</Text>
+                  {c.primary_contact && (
+                    <Text style={[styles.contactInfo, { color: colors.subtle }]}>
+                      {c.primary_contact.name} • {c.primary_contact.email}
+                    </Text>
+                  )}
+                </View>
+              </View>
+              
+              {/* Tags */}
+              {(c.tags || c.distributor_groups) && (
+                <View style={styles.tagsContainer}>
+                  {c.tags?.map((tag) => (
+                    <View key={tag} style={[styles.tag, { backgroundColor: colors.success, opacity: 0.1 }]}>
+                      <Text style={[styles.tagText, { color: colors.success }]}>{tag}</Text>
+                    </View>
+                  ))}
+                  {c.distributor_groups?.map((group) => (
+                    <View key={group} style={[styles.tag, { backgroundColor: colors.primary, opacity: 0.1 }]}>
+                      <Text style={[styles.tagText, { color: colors.primary }]}>{group}</Text>
+                    </View>
+                  ))}
+                </View>
+              )}
             </View>
-            <View style={styles.redFlagContainer}>
-              <Text style={[styles.redFlagLabel, { color: colors.text }]}>Red Flag</Text>
-              <Switch
-                value={c.red_flag}
-                onValueChange={(value) => saveCRM({ red_flag: value })}
-                testID="crm-redflag"
-              />
+            
+            <View style={styles.headerActions}>
+              <View style={styles.flagContainer}>
+                <Text style={[styles.flagLabel, { color: colors.text }]}>VIP</Text>
+                <Switch
+                  value={c.vip_status || false}
+                  onValueChange={(value) => saveCRM({ vip_status: value })}
+                  testID="crm-vip"
+                />
+              </View>
+              <View style={styles.flagContainer}>
+                <AlertTriangle size={16} color={c.red_flag ? colors.error : colors.subtle} />
+                <Text style={[styles.flagLabel, { color: colors.text }]}>Red Flag</Text>
+                <Switch
+                  value={c.red_flag}
+                  onValueChange={(value) => saveCRM({ red_flag: value })}
+                  testID="crm-redflag"
+                />
+              </View>
             </View>
           </View>
         </Card>
 
-        {/* KPI Cards */}
+        {/* Summary KPI Cards */}
         <View style={styles.kpiGrid}>
           <Kpi label="Historical Spend" value={st.historical_spend} money testId="kpi-historical-spend" />
           <Kpi label="Orders" value={st.orders} testId="kpi-orders" />
           <Kpi label="Units" value={st.units} testId="kpi-units" />
           <Kpi label="AOV" value={st.aov} money testId="kpi-aov" />
-          <Kpi label="Last Order" value={st.last_order_date} testId="kpi-last-order" />
           <Kpi label="Avg Weekly ($ / Orders)" value={`${money(st.avg_weekly_revenue)} / ${st.avg_weekly_orders.toFixed(1)}`} testId="kpi-avg-weekly" />
           <Kpi label="Avg Monthly ($ / Orders)" value={`${money(st.avg_monthly_revenue)} / ${st.avg_monthly_orders.toFixed(1)}`} testId="kpi-avg-monthly" />
           <Kpi label="Avg Quarterly ($ / Orders)" value={`${money(st.avg_quarterly_revenue)} / ${st.avg_quarterly_orders.toFixed(1)}`} testId="kpi-avg-quarterly" />
-          <Kpi label="Rank Overall" value={`#${ranking.overall}`} testId="kpi-rank-overall" />
-          <Kpi label="Rank In-Type" value={`#${ranking.in_type}`} testId="kpi-rank-in-type" />
+          <View style={[styles.kpiCard, { backgroundColor: colors.card, borderColor: colors.border }]} testID="kpi-ranking">
+            <Text style={[styles.kpiLabel, { color: colors.subtle }]}>Rankings</Text>
+            <View style={styles.rankingContainer}>
+              <View style={styles.rankingItem}>
+                <Award size={16} color={colors.warning} />
+                <Text style={[styles.rankingText, { color: colors.text }]}>#{ranking.overall} Overall</Text>
+              </View>
+              <View style={styles.rankingItem}>
+                <TrendingUp size={16} color={colors.success} />
+                <Text style={[styles.rankingText, { color: colors.text }]}>#{ranking.in_type} In-Type</Text>
+              </View>
+            </View>
+          </View>
         </View>
+        
+        {/* Tabs */}
+        <View style={styles.tabsContainer}>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.tabsScroll}>
+            {[
+              { key: 'overview', label: 'Overview', icon: Activity },
+              { key: 'orders', label: 'Orders', icon: FileText },
+              { key: 'invoices', label: 'Invoices & Payments', icon: Calendar },
+              { key: 'files', label: 'Files', icon: FileText },
+              { key: 'contacts', label: 'Contacts', icon: User },
+              { key: 'activity', label: 'Activity', icon: Activity },
+              { key: 'notes', label: 'Notes', icon: FileText },
+            ].map(({ key, label, icon: Icon }) => (
+              <TouchableOpacity
+                key={key}
+                style={[
+                  styles.tab,
+                  { borderColor: colors.border },
+                  activeTab === key && { backgroundColor: colors.primary, borderColor: colors.primary }
+                ]}
+                onPress={() => setActiveTab(key as any)}
+                testID={`tab-${key}`}
+              >
+                <Icon size={16} color={activeTab === key ? colors.card : colors.text} />
+                <Text style={[
+                  styles.tabText,
+                  { color: activeTab === key ? colors.card : colors.text }
+                ]}>
+                  {label}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
+        </View>
+        
+        {/* Tab Content */}
+        {renderTabContent()}
 
-        {/* Service Breakdown */}
-        <ChartCard title="Historical Service Breakdown" testId="card-historical-service-breakdown">
-          <Chart
-            type="bar"
-            data={services.categories.map(x => x.revenue)}
-            categories={services.categories.map(x => x.name)}
-            height={260}
-          />
-        </ChartCard>
+        {/* Analytics Charts */}
+        <View style={styles.chartsGrid}>
+          {/* Service Breakdown */}
+          <ChartCard title="Historical Service Breakdown" testId="card-historical-service-breakdown">
+            <Chart
+              type="bar"
+              data={services.categories.map(x => x.revenue)}
+              categories={services.categories.map(x => x.name)}
+              height={200}
+            />
+          </ChartCard>
 
-        {/* Seasonality */}
-        <ChartCard title="Seasonality (By Month)" testId="card-seasonality-by-month">
-          <Chart
-            type="line"
-            data={seasonality.revenue}
-            categories={seasonality.months}
-            height={260}
-          />
-        </ChartCard>
-
-        {/* Benchmark */}
-        <ChartCard title={`Benchmark: ${c.name} vs ${c.client_type} Avg`} testId="card-benchmark">
-          <View style={styles.benchmarkContainer}>
-            <Text style={[styles.benchmarkNote, { color: colors.subtle }]}>
-              Customer vs Type Average Revenue
-            </Text>
+          {/* Seasonality */}
+          <ChartCard title="Seasonality (By Month)" testId="card-seasonality-by-month">
             <Chart
               type="line"
-              data={benchmark.customer_revenue}
-              categories={benchmark.months}
-              height={260}
+              data={seasonality.revenue}
+              categories={seasonality.months}
+              height={200}
             />
-          </View>
-        </ChartCard>
+          </ChartCard>
+
+          {/* Benchmark */}
+          <ChartCard title={`Benchmark: ${c.name} vs ${c.client_type} Avg`} testId="card-benchmark">
+            <View style={styles.benchmarkContainer}>
+              <Text style={[styles.benchmarkNote, { color: colors.subtle }]}>
+                Customer vs Type Average Revenue
+              </Text>
+              <Chart
+                type="line"
+                data={benchmark.customer_revenue}
+                categories={benchmark.months}
+                height={200}
+              />
+            </View>
+          </ChartCard>
+        </View>
 
         {/* CRM Fields */}
         <ChartCard title="CRM Fields" testId="card-crm-fields">
@@ -291,29 +519,55 @@ const styles = StyleSheet.create({
   loadingContainer: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   loadingText: { fontSize: 16 },
   headerCard: { padding: 16, borderWidth: 1, borderRadius: 16 },
-  headerRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  headerRow: { flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between' },
   headerInfo: { flex: 1 },
-  customerName: { fontSize: 20, fontWeight: '700', marginBottom: 4 },
-  clientType: { fontSize: 14 },
-  redFlagContainer: { alignItems: 'center', gap: 8 },
-  redFlagLabel: { fontSize: 14, fontWeight: '600' },
+  customerHeader: { flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 12 },
+  avatar: { width: 48, height: 48, borderRadius: 24, alignItems: 'center', justifyContent: 'center' },
+  avatarText: { fontSize: 16, fontWeight: '700' },
+  customerDetails: { flex: 1 },
+  customerName: { fontSize: 20, fontWeight: '700', marginBottom: 2 },
+  clientType: { fontSize: 14, marginBottom: 2 },
+  contactInfo: { fontSize: 12 },
+  headerActions: { gap: 12 },
+  flagContainer: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  flagLabel: { fontSize: 12, fontWeight: '600' },
+  tagsContainer: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+  tag: { paddingVertical: 4, paddingHorizontal: 8, borderRadius: 12 },
+  tagText: { fontSize: 11, fontWeight: '600' },
   kpiGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 12 },
   kpiCard: { flex: 1, minWidth: '45%', padding: 12, borderWidth: 1, borderRadius: 12 },
   kpiLabel: { fontSize: 12, marginBottom: 4 },
   kpiValue: { fontSize: 16, fontWeight: '700' },
+  rankingContainer: { gap: 4 },
+  rankingItem: { flexDirection: 'row', alignItems: 'center', gap: 4 },
+  rankingText: { fontSize: 12, fontWeight: '600' },
+  tabsContainer: { marginVertical: 8 },
+  tabsScroll: { flexGrow: 0 },
+  tab: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingVertical: 8, paddingHorizontal: 12, borderWidth: 1, borderRadius: 20, marginRight: 8 },
+  tabText: { fontSize: 12, fontWeight: '600' },
+  tabContent: { gap: 16 },
+  chartsGrid: { gap: 16 },
   chartCard: { borderWidth: 1, borderRadius: 16, overflow: 'hidden' },
   chartHeader: { padding: 16, borderBottomWidth: 1 },
   chartTitle: { fontSize: 16, fontWeight: '600' },
   chartBody: { padding: 16 },
   benchmarkContainer: { gap: 8 },
   benchmarkNote: { fontSize: 12, textAlign: 'center' },
+  placeholderText: { fontSize: 14, textAlign: 'center', padding: 20 },
+  uploadBtn: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 8, paddingHorizontal: 16, borderRadius: 8, alignSelf: 'flex-start', marginBottom: 16 },
+  uploadBtnText: { fontSize: 14, fontWeight: '600' },
+  contactCard: { padding: 16, marginBottom: 16 },
+  contactHeader: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 8 },
+  contactName: { fontSize: 16, fontWeight: '600' },
+  contactRole: { fontSize: 12 },
+  contactDetails: { gap: 4 },
+  contactItem: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  contactText: { fontSize: 14 },
+  notesInput: { borderWidth: 1, padding: 12, borderRadius: 8, fontSize: 14, minHeight: 120 },
   crmFields: { gap: 16 },
   crmRow: { gap: 16 },
   crmField: { gap: 8 },
   crmLabel: { fontSize: 14, fontWeight: '600' },
   crmInput: { borderWidth: 1, paddingVertical: 8, paddingHorizontal: 12, borderRadius: 8, fontSize: 14 },
-  tagsContainer: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-  tag: { paddingVertical: 4, paddingHorizontal: 8, borderWidth: 1, borderRadius: 16 },
-  tagText: { fontSize: 12 },
   savingText: { fontSize: 12, textAlign: 'center' },
 });

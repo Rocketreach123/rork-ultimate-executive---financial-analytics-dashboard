@@ -182,6 +182,15 @@ export async function mockFinanceGet(path: string): Promise<unknown> {
         return Math.round(baseAmount * seasonalMultiplier * variance);
       });
       const total = monthly.reduce((a, b) => a + b, 0);
+      const orders = Math.round(20 + (total / 3000));
+      const units = Math.round(500 + (total / 100));
+      
+      // Add additional fields for enhanced functionality
+      const creditTermsOptions = ['Net30', 'COD', 'Prepaid'];
+      const distributorGroupsOptions = [['ASI'], ['SAGE'], ['SGIA'], ['PPAI'], ['ASI', 'SAGE'], ['Independent']];
+      const lastOrderDays = Math.floor(Math.random() * 90); // 0-90 days ago
+      const lastOrderDate = new Date();
+      lastOrderDate.setDate(lastOrderDate.getDate() - lastOrderDays);
       
       return {
         customer_id: `cust_${String(i + 1).padStart(3, '0')}`,
@@ -189,8 +198,14 @@ export async function mockFinanceGet(path: string): Promise<unknown> {
         client_type: clientTypes[i % clientTypes.length],
         monthly,
         total,
-        orders: Math.round(20 + (total / 3000)), // Orders based on total spend
-        units: Math.round(500 + (total / 100)), // Units based on total spend
+        orders,
+        units,
+        growth_pct: (Math.random() - 0.5) * 40, // -20% to +20% growth
+        last_order_date: lastOrderDate.toISOString().split('T')[0],
+        credit_terms: creditTermsOptions[i % creditTermsOptions.length],
+        distributor_groups: distributorGroupsOptions[i % distributorGroupsOptions.length],
+        red_flag: Math.random() < 0.05, // 5% chance of red flag
+        share_of_wallet: Math.random() * 100, // 0-100%
       };
     };
     
@@ -226,6 +241,15 @@ export async function mockFinanceGet(path: string): Promise<unknown> {
     const baseRevenue = 200000 + Math.random() * 800000;
     const orders = Math.round(50 + Math.random() * 300);
     
+    const primaryContacts = [
+      { name: 'John Smith', email: 'john@company.com', phone: '(555) 123-4567', role: 'Purchasing Manager' },
+      { name: 'Sarah Johnson', email: 'sarah@company.com', phone: '(555) 234-5678', role: 'Operations Director' },
+      { name: 'Mike Davis', email: 'mike@company.com', phone: '(555) 345-6789', role: 'Marketing Manager' },
+      { name: 'Lisa Wilson', email: 'lisa@company.com', phone: '(555) 456-7890', role: 'CEO' },
+    ];
+    
+    const tags = [['VIP', 'Preferred'], ['Net30'], ['High Volume'], ['Seasonal'], []];
+    
     return {
       customer: {
         id: customerId,
@@ -234,6 +258,11 @@ export async function mockFinanceGet(path: string): Promise<unknown> {
         referral_source: referralSources[Math.floor(Math.random() * referralSources.length)],
         distributor_groups: distributorGroups[Math.floor(Math.random() * distributorGroups.length)],
         red_flag: Math.random() < 0.1, // 10% chance of red flag
+        vip_status: Math.random() < 0.15, // 15% chance of VIP
+        credit_terms: 'Net30',
+        primary_contact: primaryContacts[Math.floor(Math.random() * primaryContacts.length)],
+        tags: tags[Math.floor(Math.random() * tags.length)],
+        notes: 'Sample customer notes would be stored here.',
       },
       stats: {
         historical_spend: Math.round(baseRevenue),
@@ -247,6 +276,11 @@ export async function mockFinanceGet(path: string): Promise<unknown> {
         avg_weekly_orders: Math.round((orders / 52) * 10) / 10,
         avg_monthly_orders: Math.round((orders / 12) * 10) / 10,
         avg_quarterly_orders: Math.round((orders / 4) * 10) / 10,
+        open_orders: Math.floor(Math.random() * 15),
+        balance_due: Math.round(Math.random() * 25000),
+        lifetime_spend: Math.round(baseRevenue * 1.2),
+        growth_pct: (Math.random() - 0.5) * 40, // -20% to +20% growth
+        share_of_wallet: Math.random() * 100,
       },
       ranking: { 
         overall: Math.floor(Math.random() * 500) + 1, 
@@ -286,6 +320,49 @@ export async function mockFinanceGet(path: string): Promise<unknown> {
   // Customer CRM endpoint (PATCH)
   if (path.match(/\/api\/customers\/[^/]+\/crm/)) {
     return { ok: true };
+  }
+
+  // Customer orders endpoint
+  if (path.match(/\/api\/customers\/[^/]+\/orders/)) {
+    return {
+      data: [
+        { order_id: 'ORD-001', date: '2025-08-15', total: 2500, status: 'Completed', items: 150 },
+        { order_id: 'ORD-002', date: '2025-08-10', total: 1800, status: 'Shipped', items: 120 },
+        { order_id: 'ORD-003', date: '2025-08-05', total: 3200, status: 'Production', items: 200 },
+      ],
+      meta: { page: 1, per_page: 50, total: 3 },
+    };
+  }
+
+  // Customer invoices endpoint
+  if (path.match(/\/api\/customers\/[^/]+\/invoices/)) {
+    return {
+      data: [
+        { invoice: 'INV-001', order_id: 'ORD-001', due_date: '2025-09-15', total: 2500, paid: 0, status: 'overdue' },
+        { invoice: 'INV-002', order_id: 'ORD-002', due_date: '2025-09-10', total: 1800, paid: 1800, status: 'paid' },
+      ],
+      meta: { page: 1, per_page: 50, total: 2 },
+    };
+  }
+
+  // Customer files endpoint
+  if (path.match(/\/api\/customers\/[^/]+\/files/)) {
+    return [
+      { id: 1, name: 'contract.pdf', size_bytes: 245760, url: 'https://example.com/files/contract.pdf', uploaded_at: '2025-08-01', type: 'application/pdf' },
+      { id: 2, name: 'logo.png', size_bytes: 51200, url: 'https://example.com/files/logo.png', uploaded_at: '2025-07-15', type: 'image/png' },
+    ];
+  }
+
+  // Customer activity endpoint
+  if (path.match(/\/api\/customers\/[^/]+\/activity/)) {
+    return {
+      data: [
+        { date: '2025-08-15', type: 'order', summary: 'Order ORD-001 completed', order_id: 'ORD-001', amount: 2500 },
+        { date: '2025-08-10', type: 'payment', summary: 'Payment received for INV-002', invoice: 'INV-002', amount: 1800 },
+        { date: '2025-08-05', type: 'order', summary: 'Order ORD-003 started production', order_id: 'ORD-003' },
+      ],
+      meta: { page: 1, per_page: 50, total: 3 },
+    };
   }
 
   console.log('[mockFinanceGet] No matching endpoint for path:', path);

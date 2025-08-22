@@ -12,6 +12,7 @@ export type ThemeColors = {
   success: string;
   warning: string;
   danger: string;
+  error: string;
 };
 
 export const darkColors: ThemeColors = {
@@ -26,6 +27,7 @@ export const darkColors: ThemeColors = {
   success: '#34D399',
   warning: '#FBBF24',
   danger: '#F87171',
+  error: '#F87171',
 } as const;
 
 export const lightColors: ThemeColors = {
@@ -40,6 +42,7 @@ export const lightColors: ThemeColors = {
   success: '#16A34A',
   warning: '#D97706',
   danger: '#DC2626',
+  error: '#DC2626',
 } as const;
 
 export const radii = { card: 16 } as const;
