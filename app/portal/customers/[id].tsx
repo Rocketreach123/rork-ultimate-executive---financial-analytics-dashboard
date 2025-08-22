@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TextInput, Switch, TouchableOpacity, Alert } from 'react-native';
+import React, { useEffect, useMemo, useState } from 'react';
+import { View, Text, StyleSheet, ScrollView, TextInput, Switch, TouchableOpacity } from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
 import HeaderNav from '@/components/global/HeaderNav';
 import { useTheme } from '@/providers/ThemeProvider';
@@ -7,7 +7,7 @@ import { Card } from '@/components/ui/Card';
 import { spacing } from '@/constants/theme';
 import { mockFinanceGet } from '@/mocks/mockApi';
 import Chart from '@/components/Chart';
-import { User, Mail, Phone, Calendar, TrendingUp, TrendingDown, Award, AlertTriangle, FileText, Activity } from 'lucide-react-native';
+import { User, Mail, Phone, Calendar, TrendingUp, Award, AlertTriangle, FileText, Activity } from 'lucide-react-native';
 
 interface CustomerSummary {
   customer: {
@@ -181,6 +181,27 @@ export default function CustomerProfile() {
     }
   };
 
+  const normalizedMethods = useMemo<string[]>(() => {
+    const map: Record<string, string> = {
+      'screen print': 'Screen Print',
+      'screen printing': 'Screen Print',
+      'emb': 'Embroidery',
+      'embroidery': 'Embroidery',
+      'dtf': 'DTF',
+      'direct to film': 'DTF',
+      'heat press': 'Heat Press',
+      'vinyl': 'Vinyl',
+      'sublimation': 'Sublimation',
+      'laser': 'Laser Engraving',
+      'laser engraving': 'Laser Engraving',
+    };
+    const src = (summary?.customer?.decoration_methods || []) as string[];
+    const input = src.map(m => (m || '').toString().trim().toLowerCase());
+    const normalized = input.map(m => map[m] || (m ? m.replace(/\b\w/g, ch => ch.toUpperCase()) : m)).filter(Boolean) as string[];
+    const unique = Array.from(new Set(normalized));
+    return unique;
+  }, [summary?.customer?.decoration_methods]);
+
   if (!summary || !services || !seasonality || !benchmark) {
     return (
       <View style={[styles.screen, { backgroundColor: colors.bg }]}>
@@ -353,11 +374,11 @@ export default function CustomerProfile() {
               )}
               
               {/* Decoration Methods */}
-              {summary.customer.decoration_methods && summary.customer.decoration_methods.length > 0 && (
+              {normalizedMethods.length > 0 && (
                 <View style={styles.decorationMethodsContainer}>
                   <Text style={[styles.decorationMethodsLabel, { color: colors.subtle }]}>Decoration Methods:</Text>
                   <View style={styles.decorationMethodsRow}>
-                    {summary.customer.decoration_methods.map((method) => (
+                    {normalizedMethods.map((method) => (
                       <View key={method} style={[styles.decorationTag, { backgroundColor: colors.warning, opacity: 0.1 }]}>
                         <Text style={[styles.decorationTagText, { color: colors.warning }]}>{method}</Text>
                       </View>
@@ -453,6 +474,16 @@ export default function CustomerProfile() {
 
         {/* Analytics Charts */}
         <View style={styles.chartsGrid}>
+          {/* Decoration Mix Donut */}
+          <ChartCard title="Decoration Mix (% of Orders)" testId="card-decoration-mix">
+            <Chart
+              type="donut"
+              data={services.categories.map(x => Math.max(0, x.orders))}
+              categories={services.categories.map(x => x.name)}
+              height={220}
+            />
+          </ChartCard>
+
           {/* Service Breakdown */}
           <ChartCard title="Historical Service Breakdown" testId="card-historical-service-breakdown">
             <Chart
@@ -524,8 +555,25 @@ export default function CustomerProfile() {
                 <Text style={[styles.crmLabel, { color: colors.text }]}>Decoration Methods</Text>
                 <TextInput
                   style={[styles.crmInput, { color: colors.text, backgroundColor: colors.surface, borderColor: colors.border }]}
-                  defaultValue={(c.decoration_methods || []).join(', ')}
-                  onBlur={(e) => saveCRM({ decoration_methods: e.nativeEvent.text.split(',').map(s => s.trim()).filter(Boolean) })}
+                  defaultValue={normalizedMethods.join(', ')}
+                  onBlur={(e) => {
+                    const cleaned = e.nativeEvent.text.split(',').map(s => s.trim()).filter(Boolean);
+                    const map: Record<string, string> = {
+                      'screen print': 'Screen Print',
+                      'screen printing': 'Screen Print',
+                      'emb': 'Embroidery',
+                      'embroidery': 'Embroidery',
+                      'dtf': 'DTF',
+                      'direct to film': 'DTF',
+                      'heat press': 'Heat Press',
+                      'vinyl': 'Vinyl',
+                      'sublimation': 'Sublimation',
+                      'laser': 'Laser Engraving',
+                      'laser engraving': 'Laser Engraving',
+                    };
+                    const norm = cleaned.map(m => map[m.toLowerCase()] || m.replace(/\b\w/g, ch => ch.toUpperCase()));
+                    saveCRM({ decoration_methods: Array.from(new Set(norm)) });
+                  }}
                   testID="crm-decoration-methods"
                   placeholder="Screen Print, Embroidery, DTF..."
                   placeholderTextColor={colors.subtle}
