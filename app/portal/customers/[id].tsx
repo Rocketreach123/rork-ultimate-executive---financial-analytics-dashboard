@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TextInput, Switch, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TextInput, Switch, TouchableOpacity, Linking } from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
 import HeaderNav from '@/components/global/HeaderNav';
 import { useTheme } from '@/providers/ThemeProvider';
@@ -7,7 +7,7 @@ import { Card } from '@/components/ui/Card';
 import { spacing } from '@/constants/theme';
 import { mockFinanceGet } from '@/mocks/mockApi';
 import Chart from '@/components/Chart';
-import { User, Mail, Phone, Calendar, TrendingUp, Award, AlertTriangle, FileText, Activity } from 'lucide-react-native';
+import { User, Mail, Phone, Calendar, TrendingUp, Award, AlertTriangle, FileText, Activity, DollarSign } from 'lucide-react-native';
 
 interface CustomerSummary {
   customer: {
@@ -372,11 +372,40 @@ export default function CustomerProfile() {
                   ))}
                 </View>
               )}
-              
+
+              {/* Quick Facts */}
+              <View style={styles.factsRow}>
+                <View style={[styles.factChip, { borderColor: colors.border, backgroundColor: colors.surface }]} testID="fact-aov">
+                  <DollarSign size={14} color={colors.success} />
+                  <Text style={[styles.factLabel, { color: colors.subtle }]}>AOV</Text>
+                  <Text style={[styles.factValue, { color: colors.text }]}>{money(st.aov)}</Text>
+                </View>
+                <View style={[styles.factChip, { borderColor: colors.border, backgroundColor: colors.surface }]} testID="fact-last-order">
+                  <Calendar size={14} color={colors.text} />
+                  <Text style={[styles.factLabel, { color: colors.subtle }]}>Last Order</Text>
+                  <Text style={[styles.factValue, { color: colors.text }]}>{st.last_order_date}</Text>
+                </View>
+                <View style={[styles.factChip, { borderColor: colors.border, backgroundColor: colors.surface }]} testID="fact-open-orders">
+                  <FileText size={14} color={colors.text} />
+                  <Text style={[styles.factLabel, { color: colors.subtle }]}>Open</Text>
+                  <Text style={[styles.factValue, { color: colors.text }]}>{st.open_orders.toLocaleString()}</Text>
+                </View>
+                <View style={[styles.factChip, { borderColor: colors.border, backgroundColor: colors.surface }]} testID="fact-balance-due">
+                  <DollarSign size={14} color={colors.warning} />
+                  <Text style={[styles.factLabel, { color: colors.subtle }]}>Balance</Text>
+                  <Text style={[styles.factValue, { color: colors.text }]}>{money(st.balance_due)}</Text>
+                </View>
+                <View style={[styles.factChip, { borderColor: colors.border, backgroundColor: colors.surface }]} testID="fact-lifetime">
+                  <TrendingUp size={14} color={colors.primary} />
+                  <Text style={[styles.factLabel, { color: colors.subtle }]}>Lifetime</Text>
+                  <Text style={[styles.factValue, { color: colors.text }]}>{money(st.lifetime_spend)}</Text>
+                </View>
+              </View>
+
               {/* Decoration Methods */}
               {normalizedMethods.length > 0 && (
                 <View style={styles.decorationMethodsContainer}>
-                  <Text style={[styles.decorationMethodsLabel, { color: colors.subtle }]}>Decoration Methods:</Text>
+                  <Text style={[styles.decorationMethodsLabel, { color: colors.subtle }]}>Decoration Methods</Text>
                   <View style={styles.decorationMethodsRow}>
                     {normalizedMethods.map((method) => (
                       <View key={method} style={[styles.decorationTag, { backgroundColor: colors.warning, opacity: 0.1 }]}>
@@ -389,6 +418,26 @@ export default function CustomerProfile() {
             </View>
             
             <View style={styles.headerActions}>
+              {c.primary_contact?.email ? (
+                <TouchableOpacity
+                  onPress={() => Linking.openURL(`mailto:${c.primary_contact?.email}`)}
+                  style={[styles.actionBtn, { borderColor: colors.border, backgroundColor: colors.card }]}
+                  testID="action-email"
+                >
+                  <Mail size={14} color={colors.text} />
+                  <Text style={[styles.actionBtnText, { color: colors.text }]}>Email</Text>
+                </TouchableOpacity>
+              ) : null}
+              {c.primary_contact?.phone ? (
+                <TouchableOpacity
+                  onPress={() => Linking.openURL(`tel:${c.primary_contact?.phone}`)}
+                  style={[styles.actionBtn, { borderColor: colors.border, backgroundColor: colors.card }]}
+                  testID="action-call"
+                >
+                  <Phone size={14} color={colors.text} />
+                  <Text style={[styles.actionBtnText, { color: colors.text }]}>Call</Text>
+                </TouchableOpacity>
+              ) : null}
               <View style={styles.flagContainer}>
                 <Text style={[styles.flagLabel, { color: colors.text }]}>VIP</Text>
                 <Switch
@@ -612,12 +661,18 @@ const styles = StyleSheet.create({
   customerName: { fontSize: 20, fontWeight: '700', marginBottom: 2 },
   clientType: { fontSize: 14, marginBottom: 2 },
   contactInfo: { fontSize: 12 },
-  headerActions: { gap: 12 },
+  headerActions: { gap: 12, alignItems: 'center' },
+  actionBtn: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingVertical: 6, paddingHorizontal: 10, borderRadius: 999, borderWidth: 1, alignSelf: 'flex-start' },
+  actionBtnText: { fontSize: 12, fontWeight: '600' },
   flagContainer: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   flagLabel: { fontSize: 12, fontWeight: '600' },
   tagsContainer: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   tag: { paddingVertical: 4, paddingHorizontal: 8, borderRadius: 12 },
   tagText: { fontSize: 11, fontWeight: '600' },
+  factsRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 8 },
+  factChip: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingVertical: 6, paddingHorizontal: 10, borderRadius: 999, borderWidth: 1 },
+  factLabel: { fontSize: 11 },
+  factValue: { fontSize: 12, fontWeight: '700' },
   decorationMethodsContainer: { marginTop: 8 },
   decorationMethodsLabel: { fontSize: 12, marginBottom: 4 },
   decorationMethodsRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 6 },
