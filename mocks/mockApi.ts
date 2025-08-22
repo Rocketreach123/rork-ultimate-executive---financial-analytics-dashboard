@@ -157,5 +157,95 @@ export async function mockFinanceGet(path: string): Promise<unknown> {
     } as const;
   }
 
+  // Customers pivot endpoint
+  if (path.startsWith('/api/analytics/customers/pivot')) {
+    const months = ['2025-01', '2025-02', '2025-03', '2025-04', '2025-05', '2025-06', '2025-07', '2025-08'];
+    const clientTypes = ['Direct', 'Wholesale', 'Education', 'Nonprofit'];
+    
+    const generateRow = (i: number) => {
+      const monthly = months.map(() => Math.round(Math.random() * 90000));
+      const total = monthly.reduce((a, b) => a + b, 0);
+      return {
+        customer_id: `cust_${String(i + 1).padStart(3, '0')}`,
+        company: i % 3 === 0 ? 'Urban Threads' : `Customer ${i + 1}`,
+        client_type: clientTypes[i % clientTypes.length],
+        monthly,
+        total,
+        orders: Math.round(40 + Math.random() * 120),
+        units: Math.round(1000 + Math.random() * 8000),
+      };
+    };
+    
+    const rows = Array.from({ length: 40 }, (_, i) => generateRow(i));
+    
+    return {
+      months,
+      rows,
+      meta: { page: 1, per_page: 100, total: rows.length },
+    };
+  }
+
+  // Customer summary endpoint
+  if (path.match(/\/api\/customers\/[^/]+\/summary/)) {
+    const customerId = path.split('/api/customers/')[1].split('/summary')[0];
+    return {
+      customer: {
+        id: customerId,
+        name: 'Urban Threads',
+        client_type: 'Direct',
+        referral_source: 'Trade Show',
+        distributor_groups: ['ASI', 'SGIA'],
+        red_flag: false,
+      },
+      stats: {
+        historical_spend: 512346,
+        orders: 184,
+        units: 9212,
+        aov: 1746,
+        last_order_date: '2025-08-18',
+        avg_weekly_revenue: 12890,
+        avg_monthly_revenue: 55621,
+        avg_quarterly_revenue: 166863,
+        avg_weekly_orders: 6.2,
+        avg_monthly_orders: 27.4,
+        avg_quarterly_orders: 82.2,
+      },
+      ranking: { overall: 12, in_type: 3 },
+    };
+  }
+
+  // Customer services endpoint
+  if (path.match(/\/api\/customers\/[^/]+\/services/)) {
+    return {
+      categories: [
+        { name: 'Screen Print', revenue: 198210, orders: 72 },
+        { name: 'Embroidery', revenue: 90210, orders: 38 },
+        { name: 'DTF', revenue: 40110, orders: 16 },
+        { name: 'Finishing', revenue: 19820, orders: 9 },
+      ],
+    };
+  }
+
+  // Customer seasonality endpoint
+  if (path.match(/\/api\/customers\/[^/]+\/seasonality/)) {
+    const months = ['2025-01', '2025-02', '2025-03', '2025-04', '2025-05', '2025-06', '2025-07', '2025-08'];
+    const revenue = months.map(() => Math.round(Math.random() * 90000));
+    const orders = months.map(() => Math.round(Math.random() * 30));
+    return { months, revenue, orders };
+  }
+
+  // Customer benchmark endpoint
+  if (path.match(/\/api\/customers\/[^/]+\/benchmark/)) {
+    const months = ['2025-01', '2025-02', '2025-03', '2025-04', '2025-05', '2025-06', '2025-07', '2025-08'];
+    const customer_revenue = months.map(() => Math.round(Math.random() * 90000));
+    const type_avg_revenue = months.map(() => Math.round(Math.random() * 70000));
+    return { months, customer_revenue, type_avg_revenue };
+  }
+
+  // Customer CRM endpoint (PATCH)
+  if (path.match(/\/api\/customers\/[^/]+\/crm/)) {
+    return { ok: true };
+  }
+
   return {};
 }
